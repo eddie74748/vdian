@@ -1,0 +1,469 @@
+package com.example.souseexample2;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.io.FileWriter; 
+import java.io.IOException; 
+import java.io.RandomAccessFile;
+import android.os.Environment;
+
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.ByteArrayBuffer;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONTokener;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+
+import java.util.Queue;
+import java.util.LinkedList;
+
+import com.geili.koudai.util.SafeUtil;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class MainActivity extends Activity {
+
+	private HttpParams httpParams;
+	private HttpClient httpClient;
+	TextView textView, textView2, textView3, textView4;
+	Button btn1;
+	//String newData = "W3siaWQiOiIiLCJhY3Rpb24iOiJvcGVuIiwidXNlcklEIjoiIiwidGltZSI6MTQxOTI2NjQ0NTA3Niwic291cmNlIjoiIiwidHlwZSI6ImFwcCJ9XQ==";
+	
+	// /listSearchCategories.do
+	// 获取大分类主页
+	//String newData = "w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG%2Bx3Nhy5lnrGmcRzC9Ita1OWFq4%2ByqUw73ACIGD1RliJg5ok84FGfohhIi5zEBRoEhaKXwaipHZyfwvZuEudWOvxf4%2FdDhPD7qw9WNCyo1bGu7ryOBjucGOTD9rZVzjOSl7pTr0m3n2wPo6e%2BSOY4H8uwc8IfVnpewY1pojWrOFOf8ZKVND4RIBaIY31Sr1RFRI84Ox5ffO%2BwPBIMbJEFgF2dF7I2K6hpQbjQ2M6d1NnQaTvnRudelkTX%2Fo%2Fd67T7LBbIaznifS3oSt5IRMSzCxrVjVVZ2%2BHRHbQh0gGgKSOIJ%2BF%2FfPOQjlvA%2BC9PYWSs%2FVlbib2kf20sxMEAKTtWT0ej1M3NX%2FE3gCOXQ14aUo%2Bp8Ncc2Z3EDfh0tfLncdHYf0ooqWNl0utJ9S0j6rKEMv19mYiEFpGt3yQ5Ho%2FM%2BK13rgcDD8DZ8StXeGCIQC1KAF7%2F%2B1e2z0KfRFMmpXIZ%2BoBmsvXyyB1GsRGrWYxe8yboIRC%2BUnMc6HPHru6pme68tA7zSHDl%2FyNtvXeB5gghaWbFQ1LDMANEtkuEc2aF0g21FNnO3mkQl%2B8QokAGFk08rrG8ZnJLvhUynY%2FE4XzXGYzoUYuViS4ifG0cmhPFqJsE6Uv3Eo85LVNXB4MXhAsT8HUbABW8UGYZ5ecJlBi2R63pA8PxeaTBBX7mLh1ihiGIDljZfWFNIuAmas9LviruwO3KwDkE94hWXZnc4JBYxDuZK6ia84dehCBP9P3yaRoUOWHqjwHQrAksiFso5YvHD3II7VubDLXRRmYeMzgqqW%2FRbPnW26MsI0XJgWjnAXsw%3D%3D";
+	// 获取女装子分类
+	//String newData = "w4xeRP9vuZa27RHQ7zvtixLgqZf9kh7YTUVB8In5aKsSbq3xRXqNWw8%2F%2F%2BUAwY%2FuNEb8YJqLv58Jy%2Bt4O40VgPSQtKw5RpRB5rDDTREtBaWW9yR%2B%2Fc7PQrLeWTPvWfMQ8qtZ4Xbuwzb7z3tEhh12s90Fl3%2F7bXSn7bh0%2F2tnnKd6qrtuycMiQIMVmq%2BRpcXX7fV3P7NL8gD6aE7ke62DHM2vamaWycbcWg1ldHn%2BFTPbrVyz6zZTVRFNo3djOz1gINaqA94oCLpRGdCgjkaQn6M4weaZ%2BoWcbMJXxJ%2BiteC0fgMae9iwGTsB6tLNZEdSqmmmsUA4gwBQh9XbBIR86u5wnUo%2BE8OsAcl53gE0UQ4KMiR0dllFtflIQjtFak506vpGP5beQJqzLwSsF7iJU8uFwZqpkavp%2BjM8GVdddW7d9F258Ch4JMPI907Pg2yfDkgbymNP0JskRCCHZgeuUSOXVqh9j7lkYM6zbbM9h9OjD32%2FfCExYEKX4X5pk3voJDDYtsv1s3xl6jSVG6pfLqXsNcsfS39SQjRUk3IdsYSvRrWoo7QeZKIUOOq6DAexFkWA6N2rlPT%2F5S%2FQvPz88gmYWjkPFDAjHbmIpQrsV0gmYKPb7CmMum2TfWSvzQWfgTAMV7XjKMru7zNFWmdf2AAIq2UjKZHiIJsaVmaavSSQEpVO%2BiYn8Vtq1RKeY196%2Bu7ObzWvkxP6M3qsr33KuS5HXR7Ol4w4eIZkMYKXj8SI3jWGLeAtvqb4Jn28c1XYnwc0yUERNi327fidpquOsFq7eNI5Z8eze1SkRqMZcUD3o8EUCnuGVwx%2B%2BIlFbqQq7%2B38h2UoRGn2o2s6li9R2WfREL1KDe4jfVjIaEaI9Ac9RRk%2FGOCA2dqUa5zUSvJjUTnMPuft%2BdQgJSyfuwsSZ9J%2BB0h6PKDzm5qMFgmmZoH9ZcH%2FGR9SE%2B6PpgrFebP2q6VPfRV6l7uLKdvGbnIBZPZa90GJGpmdQF2n1xrgyzA%3D";
+	// 获取女鞋子分类
+	//String newData = "w4xeRP9vuZa27RHQ7zvtixLgqZf9kh7YTUVB8In5aKvcsL8JsvDgM2yE8Y92OcSVitlUlFh2qAS9XLn4gnl%2BmvSQtKw5RpRB5rDDTREtBaWW9yR%2B%2Fc7PQrLeWTPvWfMQ8qtZ4Xbuwzb7z3tEhh12s90Fl3%2F7bXSn7bh0%2F2tnnKd6qrtuycMiQIMVmq%2BRpcXX7fV3P7NL8gD6aE7ke62DHM2vamaWycbcWg1ldHn%2BFTPbrVyz6zZTVRFNo3djOz1gINaqA94oCLpRGdCgjkaQn6M4weaZ%2BoWcbMJXxJ%2BiteC0fgMae9iwGTsB6tLNZEdSqmmmsUA4gwBQh9XbBIR86u5wnUo%2BE8OsAcl53gE0UQ4KMiR0dllFtflIQjtFak506vpGP5beQJqzLwSsF7iJU8uFwZqpkavp%2BjM8GVdddW7d9F258Ch4JMPI907Pg2yfDkgbymNP0JskRCCHZgeuUSOXVqh9j7lkYM6zbbM9h9OjD32%2FfCExYEKX4X5pk3voJDDYtsv1s3xl6jSVG6pfLqXsNcsfS39SQjRUk3IdsYSvRrWoo7QeZKIUOOq6DAexFkWA6N2rlPT%2F5S%2FQvPz88gmYWjkPFDAjHbmIpQrsV0i%2BeINFjD6FQKMZcdMnRXABwG8r27Q0MGnE3o4ABbQX2gAIq2UjKZHiIJsaVmaavSSQEpVO%2BiYn8Vtq1RKeY196%2Bu7ObzWvkxP6M3qsr33KuS5HXR7Ol4w4eIZkMYKXj8SI3jWGLeAtvqb4Jn28c1XYnwc0yUERNi327fidpquOsFq7eNI5Z8eze1SkRqMZcUD3o8EUCnuGVwx%2B%2BIlFbqQq7%2B38h2UoRGn2o2s6li9R2WfREL1KDe4jfVjIaEaI9Ac9RRk%2FGOCA2dqUa5zUSvJjUTnMPuft%2BdQgJSyfuwsSZ9J%2BB0h6PKDzm5qMFgmmZoH9ZcH%2FGR9SE%2B6PpgrFebP2q6VPfRV6l7uLKdvGbnIBZPZa90GJGpmdQF2n1xrgyzA%3D";
+	// 获取箱包子分类
+	//String newData = "w4xeRP9vuZa27RHQ7zvtixLgqZf9kh7YTUVB8In5aKuo254eaG%2BI1xX8vAYT9SVAitlUlFh2qAS9XLn4gnl%2BmvSQtKw5RpRB5rDDTREtBaWW9yR%2B%2Fc7PQrLeWTPvWfMQ8qtZ4Xbuwzb7z3tEhh12s90Fl3%2F7bXSn7bh0%2F2tnnKd6qrtuycMiQIMVmq%2BRpcXX7fV3P7NL8gD6aE7ke62DHM2vamaWycbcWg1ldHn%2BFTPbrVyz6zZTVRFNo3djOz1gINaqA94oCLpRGdCgjkaQn6M4weaZ%2BoWcbMJXxJ%2BiteC0fgMae9iwGTsB6tLNZEdSqmmmsUA4gwBQh9XbBIR86u5wnUo%2BE8OsAcl53gE0UQ4KMiR0dllFtflIQjtFak506vpGP5beQJqzLwSsF7iJU8uFwZqpkavp%2BjM8GVdddW7d9F258Ch4JMPI907Pg2yfDkgbymNP0JskRCCHZgeuUSOXVqh9j7lkYM6zbbM9h9OjD32%2FfCExYEKX4X5pk3voJDDYtsv1s3xl6jSVG6pfLqXsNcsfS39SQjRUk3IdsYSvRrWoo7QeZKIUOOq6DAexFkWA6N2rlPT%2F5S%2FQvPz88gmYWjkPFDAjHbmIpQrsV0gyE9vEDouWgzuTjtDNZa%2BXg6wtvPhWrrtBCpCAk5PlYQAIq2UjKZHiIJsaVmaavSSQEpVO%2BiYn8Vtq1RKeY196%2Bu7ObzWvkxP6M3qsr33KuS5HXR7Ol4w4eIZkMYKXj8SI3jWGLeAtvqb4Jn28c1XYnwc0yUERNi327fidpquOsFq7eNI5Z8eze1SkRqMZcUD3o8EUCnuGVwx%2B%2BIlFbqQq7%2B38h2UoRGn2o2s6li9R2WfREL1KDe4jfVjIaEaI9Ac9RRk%2FGOCA2dqUa5zUSvJjUTnMPuft%2BdQgJSyfuwsSZ9J%2BB0h6PKDzm5qMFgmmZoH9ZcH%2FGR9SE%2B6PpgrFebP2q6VPfRV6l7uLKdvGbnIBZPZa90GJGpmdQF2n1xrgyzA%3D";
+	// 获取手提包列表
+	//String newData = "72pICm%2BhnI1mwy%2BFV4fSfrCV6nZ8Itj%2BYvDmyuSokog0SWK%2FPhNMDicmqApQEllUWiTGsJBR8uIOtn6o7zxruw5vBcjPB%2FOJ6u7MhgIDy9tsk2xAZuVuNzHVtWdKOllFkQBDW4X1vRhxrGRgq2dQnLwpZO1AJmuKAJRXX%2Fpl8AyQnYyeEOLQsvHNLlrUOBwgV5FTWjoUudhLp2Osvf5IhDyhBgGaI9FcMI6g81pIOYFrq9c%2BfxzFgEa7D0OZVzLrCpLRFSybLCeJoa2YizORuBTQpSfNmjViqSfjpzixyd5PTygEi28H9LXGx%2BpmM6R1uH%2BokyzWmJFIaZtjZbUKLsESUj7uKszBzppXUzg9n8BDHQz1xU32mVKJ2iGkmiU1VU8JZCyqM%2BjH1QPhUxQ6GO%2FMP3GIPp8ry4J4BrScHj9QNayd4FmeoUVEZ9iV2pRo71FL9pyHlSaPMKp8h0g8opuOAfIEWq2II6qW8Wwvip9VyswuOzTcor2RNYKQhsma2F9HswR%2BqZGAvJ5j1WaDqv6Ah4ME4qQMKLkBPupeZ4E6B%2BgK0ehKFOg6fJgO2acyEnZsUcYiUSWbllNhTZtlqKa1%2F8niaqGlBj%2FjwikrpPw%2F3ddHOLwtDfGcxVDIoSJ0B5fKYMO5zi86xEUJbYNU2KTMM4DJQ7PkAyqOhPVKkFm6ZpqtmFF7sGq2LdyhhCDPcrjSBIYIfgC6Y9ii5i5YrxtMAhTJPCHQULpLTOQuEBsY94J6DjwgLpzv6NKuMv%2BmlvoG%2BJsCruJUEYH19MmCNJfH%2FetjtG0gLqX3Zysb%2FKLoq0lyIDEHWI3G9d3CD%2FqtQVVRV71fry8qbDoVTpm7i%2Fj8jSHgCbEtfUaSEdA6gp9ONSIPzQjCeSbqd6skU8HOQxtgE%2BJf0yx2RpGR25BSM0mtbaEnmaSaKhz1m4sKMKO%2Ff43CycZPLwC1XFB414CA21QKsBymBjBP0VUfF4E774KMrUrP80G8ZdgrihXtA%2BGMbBhulRh2LiaJRiAwQ2oSAWEymZsCGYYb34UfQNZtybOTA0RtTtjsDw28X5kYtLPwVvG9VvG9cWajkRFbsgWr%2FnvXm0GJ53iwG6z9TrGXKvj6MPsE36jxswNaARP57WdY%2B9M84Rbo94NTS8SaBgEageeydwNpqYdPndPoOtVwLA%3D%3D";
+	// 获取某个手提包详细页面
+	//String newData = "FGx1wYg9xQKvNCrc%2B%2BJ2k8bSXT1Yi7%2F7tVjbbl8AGeAeizuwT9Q4DGsOUYc75K6AO1zWjIL3k%2FfD1amHvjZnZgf2yW7SK7XavJZtV2%2FubniG15dvMUeRACzHSQxDotCNtlcA0UmFpXuv%2Bsffd7QCi%2F0kl5XBExtK1Ea7SZ8TD9GyHJCLbftHaX1qLNGCtRhW4Tz1nkFGrlj3yskZWBmtoEdzO54l7%2BXd%2FXeIrhepVq6Tuu9W15AEPG7cmUzDWg3fO%2BnC3kzkyHcjZzKO5svqf53fSmVfSQZdPgXuL%2Bi1SIcyySdGTj7bBoGVRa9Vd%2BZfoxDS8mMeeqsKcvPKDeNbZcnbxmrmk09WMfnnEH0IrolsaaSalRRJatoo%2F8QTclB%2FenyhDl6jPlO%2ForxhLsi%2F1cGWhnWGYvgcEjz4mp6UHTg%2B5qgQLOgKs1W489L5rhBfnc2E7CLxEDEQ0%2B7xi%2F1tfyQ9fK5oxxAB0%2BxEC0KUku0tMsy4dE9d5WQ0qp%2FVRMsX3C%2FeD9bylvSZOgTR8UM6GdTEb5%2Bin%2B5hLaB0fITOCSul6Rzui8gd1BGZvW%2B68odN%2FXhwi6zE41B8kNyQCrAdKQ61hnvyGZW31fYYmTA7vFfxAjucPCwEx3ui9Q91Y79aoHTacn0ccG9ioGKce2yNeCIrrIih1g9E1OrZFOWawFA9hn9jz0ilbR1ElGAzw1CxIuyFqGWRiPPDvDgsPDENzQHrvKQ36ZGZzPQX1fyDoEkr8ZETWTQVdH98nUHzB%2B7Dr3BJm8cLK3Q%2B2CT8NFoVbu%2FexviPrIY3zCDQOZBueLxXkyoCKDwxAp6Vay1bc%2B3Xm7ZAzdlxlNCG9byz6lRD0F%2F%2BKhDXbNp3f4VOP3shilDejYUozTpLha8KOOTVynRSqCFMYcnZ6YiM0a50Mfhbp3WJoUwU2Ycbpoi7l9MdpLJKCuM1DRbT5g4Ak3JVrhg8jvLE%2FQj18hY3Tlc5V%2FjSvLeEVEnckuDT2IlE%2FbqVVfgaxPslvs3gDKF0MsFV4z89KaoU%2Fi6BaAWScqlr2ubYGtVdmWFbuve5RhaP5QMymUk%3D";
+	// 获取苏州毛衣
+	String newData = "72pICm%2BhnI1mwy%2BFV4fSfrCV6nZ8Itj%2BYvDmyuSokohjl3T90zcUI360gXhL3j%2FC96xKjvrmTK%2B1kXUs3%2BOL3pZnJR%2Ba9X%2BFaDSvXWCzlnjMbBURdneuYX5qKhRtAO5ttIygry7pGcJean6zIG3X0Aiwc6eDku2OajpfK3VS%2BR4f218WvN2hQVydnLyodBk9R5UBpXpZckh2InvQAvGMt85W%2B1l4ftYy1nR4jNGPxAm7%2BijavEdU151j9itFIisnaPMEDDsCD4FKTgLx58S6p08pe51XF0TNbpicECc3PjimWcG7X9Jpl9ZwsWob44pmM0fke19VPTkwPsN%2FJW41U6fqCXWD%2BU4%2Fg9zv%2B3wmtYjoV4Tq6Nme5buab73V3JrimUudKpmagtHW2CKWSYx84yTurB26hYDrBiDkQ69fOT33lRRk926Zq%2BAMkVekn%2FGu9xpOLw5AySwS0ZT5hyPxmmMOLmIFDLs5xfQiylONE4NQ4N6mqK2173j0kn6%2BZzCLm0yrVhsIHfwq2taU3k3PRVBfblMCkE9Ise7EPE4cAqJUEh%2BA20y3i0RzWYqEYkdcXZ6l%2Fxgwa4NVkSbK9j3G9Fj3bq7CxvZbsZQb0GGPdPTreWAy794gsBRalA%2F1kNEr7yszCTxhz%2BitHyGbg%2F8IrZ3y3OM99xjkCpIvRbWXC2oaaDV6S%2B%2FyLDk76cFGx2abUUTNI1A0nCv2JQKjXMaVD6YWW3zxpp4JwgMSFiF3EbYRA73kym8qb5%2FILMXqFQNmufSpbB%2FROjq49CZvk3C5VynSnvpv6ZlIShhT5owH63haBp5KArM%2FIA088weeBACWepaChMaGLkHbXafGGdxFY89UCmGgsHNF%2Bsgo1PH5WxSofS1Bin0SitSr9GbSU7%2Be9Ooz9A1zUb8r%2Fn2dSgJ0T7Iuyv%2FqDYT7Q2tRTcvbD4Aeexx27sNY3GxVZRro1Pw5u%2BY0Lv%2Fbf%2BmjEiZFXruymzJIOxQLEnnKwMY2elQ6khSlQg491QhHBh%2FPZlxTbhNbsr17Mz9IdRINHGw4EclVfopFXtQxTAdClGnWVa3UbM0x7tbMIsgO6c2jq1eaaIqUMQl%2FkWEpBjnBMeZFc6BZpxHUVbIJFb89r7Gkkm7irncoa71UsnwVza35W%2B%2BvGCJilWbI9peBvW%2F%2BaXaZOiyAPD2S8dJbKNO31hoicQRITIlYnJv2WFEh85q7SKbT12%2BxcxnXb0x%2FWSc%2Bz8dIcR3RX%2B7I7Erj%2F3mbLDDthHC2tLw%3D";
+	// data="\"{\"body\":{\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"t141210223756\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.2.0\",\"android_id\":\"99ab3f322d636e6d\",\"kduss\":\"\",\"gender\":\"2\",\"wduss\":\"\",\"dpi\":\"240\",\"apiv\":\"32\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1419052937314_463357\",\"appstatus\":\"active\",\"h\":\"800\",\"w\":\"480\",\"guid\":\"\",\"userID\":\"kc3-kdb33404da-e7ad-479c-af23-495825056661\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1010n\",\"anony\":\"\"}}";
+	String data = "{\"body\":{\"newData\":\"W3siaWQiOiIiLCJhY3Rpb24iOiJvcGVuIiwidXNlcklEIjoiIiwidGltZSI6MTQxOTI2NjQ0NTA3Niwic291cmNlIjoiIiwidHlwZSI6ImFwcCJ9XQ==\",\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"t141210223756\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.2.0\",\"android_id\":\"99ab3f322d636e6d\",\"kduss\":\"8db3420df94635622a485bd22add4acb\",\"gender\":\"2\",\"wduss\":\"\",\"dpi\":\"240\",\"apiv\":\"32\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1419266659978_593294\",\"appstatus\":\"active\",\"h\":\"800\",\"w\":\"480\",\"guid\":\"1419266503705_1055996\",\"userID\":\"288722267\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1010n\",\"anony\":\"@anonymous:_000000000000000\"}}";
+	RandomAccessFile randomFile;
+	
+	public class Category{
+		public String cateID;
+		public String cateName;
+	}
+	
+	public class SubCategory{
+		public String subCateID;
+		public String subCateName;
+		public String cateID;
+		public String cateName;
+	}
+	
+	Queue<Category> queueCategory = new LinkedList<Category>();
+	Category currentCategory;
+	Queue<String> queueCity = new LinkedList<String>();
+	String currentCity;
+	Queue<SubCategory> queueSubCategory = new LinkedList<SubCategory>();
+	SubCategory currentSubCategory;
+	Queue<String> queueProduct = new LinkedList<String>();
+	String currentProduct;
+	
+	// String
+	// data="{\"body\":{\"newData\":\"W3siaWQiOiIiLCJhY3Rpb24iOiJvcGVuIiwidXNlcklEIjoiIiwidGltZSI6MTQxOTMwMjU0NTg3Niwic291cmNlIjoiIiwidHlwZSI6ImFwcCJ9XQ==\",\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"t141210223756\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.2.0\",\"android_id\":\"99ab3f322d636e6d\",\"kduss\":\"436e7eda4abd9b87e0da3f5e417a5eaa\",\"gender\":\"2\",\"wduss\":\"\",\"dpi\":\"240\",\"apiv\":\"32\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1419302546100_707400\",\"appstatus\":\"active\",\"h\":\"800\",\"w\":\"480\",\"guid\":\"1419302556151_947549\",\"userID\":\"289465887\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1010n\",\"anony\":\"@anonymous:_000000000000000\"}}";
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		try { 
+			// 打开一个随机访问文件流，按读写方式 
+			randomFile = new RandomAccessFile(Environment.getExternalStorageDirectory().getPath() + "/vdian_data.txt", "rw"); 
+			// 文件长度，字节数 
+			long fileLength = randomFile.length(); 
+			//将写文件指针移到文件尾。 
+			randomFile.seek(fileLength); 
+		} catch (IOException e)
+		{ 
+			e.printStackTrace(); 
+		} 
+		
+		textView = (TextView) findViewById(R.id.text);
+		textView2 = (TextView) findViewById(R.id.text2);
+		textView3 = (TextView) findViewById(R.id.text3);
+		textView4 = (TextView) findViewById(R.id.text4);
+		btn1 = (Button)findViewById(R.id.button1);
+		btn1.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+			// TODO Auto-generated method stub
+				//textView2.getText().toString();
+				String str_encry = "8yQjU308s7QGG9xDfn1NOsvKMl8pHPbmL0%2FmEDEte4YQgm2HPLWwUMa5GtrK2HPZ8ej4XR2ujV5c03oTBhh%2FLvXolfSam1NGiTRxbkTLY%2FdVdQI3qeLNUWBrkod9TvirjISn8W8dLKicLDs%2Fj90fMh9wimXb0pGp1G53dVlV5GtBhcTsd8uI8lloGIyErzG4ZxMqFGYEHR0Ok19PxXz6cVDbCbTGekgcB%2FHtbWsR8s60zlEvkXrud05f%2BictxRbvH%2Fc5Gevp44HTXinwmNd%2BxA3X8AzZ7iWh3V%2BriqBWbPexBoEHpUG52caE5m2ojDL8DWh8GirTHZPmhbo%2Bj1dE3UDiaXwzd%2FGYERtOcHFbgsRbn3zc%2FVOy4KTTkDAPHsTyahS%2F%2B%2FCyTLsuNP3h%2F7payoDYST8t7lSAtQJkJiRgWdBvYMGgUujI4zOhfrXnL3QB2fapiv=32&edata=8yQjU308s7QGG9xDfn1NOsvKMl8pHPbmL0%2FmEDEte4YQgm2HPLWwUMa5GtrK2HPZ8ej4XR2ujV5c03oTBhh%2FLvXolfSam1NGiTRxbkTLY%2FdVdQI3qeLNUWBrkod9TvirjISn8W8dLKicLDs%2Fj90fMh9wimXb0pGp1G53dVlV5GtBhcTsd8uI8lloGIyErzG4ZxMqFGYEHR0Ok19PxXz6cVDbCbTGekgcB%2FHtbWsR8s60zlEvkXrud05f%2BictxRbvH%2Fc5Gevp44HTXinwmNd%2BxA3X8AzZ7iWh3V%2BriqBWbPexBoEHpUG52caE5m2ojDL8DWh8GirTHZPmhbo%2Bj1dE3UDiaXwzd%2FGYERtOcHFbgsRbn3zc%2FVOy4KTTkDAPHsTyahS%2F%2B%2FCyTLsuNP3h%2F7payoDYST8t7lSAtQJkJiRgWdBvYMGgUujI4zOhfrXnL3QB2fpX4QcgcmqDIiXu2wnoTppThPqKxdnK5nt4UdoDPzhCExEoI3Cbo%2BLM7QxF3HwpP5tbUP1O1%2BZT4avNv82hDbke7pgPMCGiqLT9koPRhsvCChM4K1lZRIWG18%2FVy8EkfUdEdFeoxcKBj6%2Fq5KS1EefxpgXHZsR0v2%2BnQPH4MgCUxFEfEKXTw%2B7bOXAp0uy6BT95E6VkLvHuq5%2BBq7THlhUUse1ZQ8aUJukRD3xOEKRHsFqBDC05EE3qakcCiDz3%2BUUqIB9YImFP7cYuzPNImf2%2BQf8aAkh%2F3k1KAFjIlFfO8dTn8hShPy9qBZuhuWw4ha9mqSPqeHnNY9HgHYkBXnkcjfPvSLAGWkAkScnvM5irDUX8bjJsUqTHRw6NVtxwpvoAybXJl0GmtIA3ldYukgOhABREvG5advd58lw8V%2BJjHrMlhYD1FwwmkoADeaghtwHAqd9ryt52%2BiIDwWOUllLUqllAFWlVylLWi34WT7WGQQuq3yoar7MGeQPqj57w5%2BXl599EsIdCGu0bBSYOMDxh5Sm4Dz%2FzkHkY9NpBJ9pYWVlxHE3mEkGISuD0dvSgNDmwbKBs3282MSZUNI%2FBvoxutPoZF73VN%2BUqW9apTw7Ikn7lBvpM0yNYiNm%2FU3WP%2BVkacz48ZtSm8wKOchjqu4XtUDTpn8WVBmTXwK3KhBk%3D";
+				//String str_encry = "72pICm%2BhnI1mwy%2BFV4fSfrCV6nZ8Itj%2BYvDmyuSokohjl3T90zcUI360gXhL3j%2FC96xKjvrmTK%2B1kXUs3%2BOL3pZnJR%2Ba9X%2BFaDSvXWCzlnjMbBURdneuYX5qKhRtAO5ttIygry7pGcJean6zIG3X0Aiwc6eDku2OajpfK3VS%2BR4f218WvN2hQVydnLyodBk9R5UBpXpZckh2InvQAvGMt85W%2B1l4ftYy1nR4jNGPxAm7%2BijavEdU151j9itFIisnaPMEDDsCD4FKTgLx58S6p08pe51XF0TNbpicECc3Pjga%2BG2wwd7B6rJCiL0MwrvpM0fke19VPTkwPsN%2FJW41U6fqCXWD%2BU4%2Fg9zv%2B3wmtYjoV4Tq6Nme5buab73V3JrimUudKpmagtHW2CKWSYx84yTurB26hYDrBiDkQ69fOT33lRRk926Zq%2BAMkVekn%2FGu9xpOLw5AySwS0ZT5hyPxmmMOLmIFDLs5xfQiylONE4NQ4N6mqK2173j0kn6%2BZzCLm0yrVhsIHfwq2taU3k3PRVBfblMCkE9Ise7EPE4cAqJUEh%2BA20y3i0RzWYqEYkdcXZ6l%2Fxgwa4NVkSbK9j3G9PJakq22j%2F5esQamK6ydUK0%2BinN5i4m8LMfaSK59GtXJgHpp6xpuSqk1pqmQFT5Vi53y3OM99xjkCpIvRbWXC2oaaDV6S%2B%2FyLDk76cFGx2abymRPMWjUjQNz9voITCtfWKYWW3zxpp4JwgMSFiF3EbYRA73kym8qb5%2FILMXqFQNmufSpbB%2FROjq49CZvk3C5VynSnvpv6ZlIShhT5owH63haBp5KArM%2FIA088weeBACWepaChMaGLkHbXafGGdxFY89UCmGgsHNF%2Bsgo1PH5WxSr9v%2Bv%2FkVD0b6nDZnZj3IzLOAaC6htOxIByj7boL6Uo7Iuyv%2FqDYT7Q2tRTcvbD4Aeexx27sNY3GxVZRro1Pw5zBvVeStUPJgWVV07cCvH%2BXAJQ27MweHhxjvPFEp7Eaaj00IlRbzyrShQH8hrkOjOsnHy4fOYtpk3Eh8KiVlaeIpFXtQxTAdClGnWVa3UbM0x7tbMIsgO6c2jq1eaaIqUMQl%2FkWEpBjnBMeZFc6BZpxHUVbIJFb89r7Gkkm7irncoa71UsnwVza35W%2B%2BvGCJilWbI9peBvW%2F%2BaXaZOiyAPD2S8dJbKNO31hoicQRITIlYnJv2WFEh85q7SKbT12%2BxcxnXb0x%2FWSc%2Bz8dIcR3RX%2B7I7Erj%2F3mbLDDthHC2tLw%3D";
+				//String str_encry = "72pICm%2BhnI1mwy%2BFV4fSfluI1wxjjyDPW%2FCVaQdIBL4cbWtV6k%2Bj8NoWuwCgpJwWEuCpl%2F2SHthNRUHwifloq2c3QHfeRC%2BMhF7gPIuNYm5TZYegjrYjmAZWMGvsfJUYaOLlbU7aCHCIFrAF%2F7X9wIQKn0Tja6ojKeGv7fVzw52t6bLoZYbQwVN4%2F1rcRM9nHHSQjftxjoL%2FFxTWwrOXSWhInNPDNZSZV3ggrIsC%2BA6YkNmOHZpkd2BzLZ76yfs9jV%2BqvRh3BDaNDorXoRDKlQy7lPVDRUAMKMxWb08g8u1t%2B44Jj%2BRzqUaQouLXAeYdj4rhEA2SU35DSpuVkxRQRCIa5eX5Qh14MUcnSJs%2B9jN9kTiSFaec2Ve%2FA2cjAn8VlYenymungGLD1DgWd3DdeSNas%2B3KNexs5OF2kvaRozghXvWgOlSRT3X2t3nOI%2ByZGj6S5Pf%2F3F73QxbqposXKpaM0Y5tK4Eo0CQkkNCLxj%2FsTalCB91XWyZEWkfht8XSUDAuK1G9%2BlV66gmd%2FKX8aLw9Tp%2B43f8cd4LjlRphXTzfHu4F3UY8IEGs%2F%2FBhWth%2F8H36vCIOFeOlXijFgzhRDOpmnAMyDW5JITgJRU97imC%2B1uUWhnT6xq%2BoxHde%2BdwENdFtuRaXxqd%2FE8KR270Aw%2B0bqQnhoK1A1DwLaIcV31WTj4o3m6d9IY%2BedW6%2FywIr2nbjwKwxSeIyy5ASRsgzS8I6qbmIGi55csmIWLEopCWW1SJiM5SzFF%2F77J4mzeWWbk4nzB8b22lwcjm1cgcTnnk9kB5HilvX2KPWlSwQbFvrBMce3ZNBTWExDIiLyVc6nhXxVvASfCYgmeifsSB4aWmB3xTXW66Esj4amk2Ht7LB4bbXl948pl4CUxoxcfOjAGvYdAPvH1eqa%2Fbgl6s8pcX8f0VS45rHkAu7TCXcEobE8qYnuXZWuK55491MSKQMSDG8mxqQXPCZbg4D7cB7h2W7%2BLdbKaQVXhXKl5gCSWm%2F6OyxrFiRoBNIEcE2MKIm2R2dNfM5UBTyy7m%2Fu8RyddpCnWlMP2xZZwyHn4jcoMFOZda%2B3kI8RAcgRoJyt6aY";
+				//String str_encry = "6nf%2BauhZcmHlciK2yM2vwxN8i6%2Fg%2BlfnyENt1ATRDWiBz3vkw3Vva4iKBuXPDISaatPpbk6lV1oMbYyuQSgulWzzqw7u3U6GK1SmvUm41ToXG9N8l64Ln%2BBb1jwiMnc%2Bl0jIK14PaM1270xb71xJqyEyVLgUaHqfkakXX0dkaDknsbmHe0EuyV7%2FT2f0m2WfzlIDhhbtruDp5cd0bN8WlkleShwXg3p5kPcYRgfKZxg4jbZRJAJjmPcsAFNEAZ4hXGTGj1Gf241V%2BpjV527VMzhC8b%2FjMlu59gRdQaeCc1Edjj%2BSAm1rU%2F1%2B8EzZMc8M9OwjmsVgm2a3PcjEVI8AWYF1NVaj83w8jDqMooBjvIyVHCylzSACfziwYohvcUE8ScfvXe0QfXFCjL9eUmHdxaAU9Nq05r7N9CdeSx6R8bjXQFtuB2O7rB28sk3quzo10Ua5OIA%2FVzCkXg4MtS%2BelAmYV5i24SY9Yz3yYdumx3keMKpDh0Nl0VP2xnd%2FJMMa0%2BPQ5Us8hrccQJOwNFJ87Hu21JbGf8qoJpStBHhxQVb%2F0GzS9toGlaN6Ns6w9S7SEyWtm4cU4kh%2BshoJgWHonQFZPYHadZcnYEIXeXPlLhQp4G93DjO6L7I%2FCns3hiobZxIb2fDDvcpSsyCF9Hr87tgih%2BFxGGVkUjZi7%2Bn8svt0GA%2B8Fyl5viFeGGKD9Iv0eQYeUmUSr7jnqCUuN8btvpjTkS%2BC8BS7HYaNg3haE86urY44nagT1P%2FxTOyeV9m9k6F7izwgyYc0lhRJeI8rN9CEwT0er91XsnScRU51IkCfMRiqWoYDSnqCv%2F2P6rS1sAew2KYzrzWMziShGpEPRKYB20YyNppIr2reJOfDuLOROCGvTCxbz6f4Baq%2F1FTJWXacvNSvkUONo2YNrcLvawOlZkLtBSxkw510njIloBE%2F5GliRa5CeSRKJb62llkEByUe4hmsyGqx5r%2FJZkYX93B0mzV8zA%2FNFOMopjbMNZlGLdkXS7HdxKPage8zYoMYQobIHny6VPk9FzQpmH60uve0AKZtjWdOTQhoPM%2BUXZyu20NcxYtjR9E3Zv%2B0nESu";
+				textView2.setText(str_encry);
+				try {
+					str_encry = URLDecoder.decode(str_encry, "utf-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				byte[] encry = SafeUtil.ReConvert(str_encry.getBytes());
+				byte[] decry;
+				decry = SafeUtil.decryptRequestData(null, encry, "3.0.1");
+				Log.i("decry", new String(decry));
+			}
+		});
+		
+		textView.setText("Getting All City");
+		GetAllCity();
+		textView.setText("Getting All Categories");
+		GetAllCategories();
+		textView.setText("Getting All Subcategories");
+		GetAllSubcategories();
+		
+		System.loadLibrary("safe-so-ed-by-cyg");
+		
+		Log.i("tag", data);
+
+		int result = SafeUtil.readSignature(this, "1.0.0");
+		String string =	result + "";
+		textView.setText("Signature: " + string);
+
+		// 鍔犲瘑鏁版嵁
+		// encryptRequestData the first param is no used
+		// byte[] encry=SafeUtil.encryptRequestData(null, data.getBytes(),
+		// "1.8.0");
+		// the third param may be different!
+		// 绗笁涓弬鏁版槸鏁版嵁鍖呬腑鐨刱id瀛楁鍊�		
+		byte[] encry = SafeUtil.encryptRequestData(
+				this.getApplicationContext(), data.getBytes(), "3.0.1");
+		String str_encry = SafeUtil.Convert(encry);
+		str_encry = "8yQjU308s7QGG9xDfn1NOsvKMl8pHPbmL0/mEDEte4YQgm2HPLWwUMa5GtrK2HPZ8ej4XR2ujV5c03oTBhh/LvXolfSam1NGiTRxbkTLY/dVdQI3qeLNUWBrkod9TvirjISn8W8dLKicLDs/j90fMh9wimXb0pGp1G53dVlV5GtBhcTsd8uI8lloGIyErzG4ZxMqFGYEHR0Ok19PxXz6cVDbCbTGekgcB/HtbWsR8s60zlEvkXrud05f+ictxRbvH/c5Gevp44HTXinwmNd+xA3X8AzZ7iWh3V+riqBWbPexBoEHpUG52caE5m2ojDL8DWh8GirTHZPmhbo+j1dE3UDiaXwzd/GYERtOcHFbgsRbn3zc/VOy4KTTkDAPHsTyahS/+/CyTLsuNP3h/7payoDYST8t7lSAtQJkJiRgWdBvYMGgUujI4zOhfrXnL3QB2fpX4QcgcmqDIiXu2wnoTppThPqKxdnK5nt4UdoDPzhCExEoI3Cbo+LM7QxF3HwpP5tbUP1O1+ZT4avNv82hDbke7pgPMCGiqLT9koPRhsvCChM4K1lZRIWG18/Vy8EkfUdEdFeoxcKBj6/q5KS1EefxpgXHZsR0v2+nQPH4MgCUxFEfEKXTw+7bOXAp0uy6BT95E6VkLvHuq5+Bq7THlhUUse1ZQ8aUJukRD3xOEKRHsFqBDC05EE3qakcCiDz3+UUqIB9YImFP7cYuzPNImf2+Qf8aAkh/3k1KAFjIlFfO8dTn8hShPy9qBZuhuWw4ha9mqSPqeHnNY9HgHYkBXnkcjfPvSLAGWkAkScnvM5irDUX8bjJsUqTHRw6NVtxwpvoAybXJl0GmtIA3ldYukgOhABREvG5advd58lw8V+JjHrMlhYD1FwwmkoADeaghtwHAqd9ryt52+iIDwWOUllLUqllAFWlVylLWi34WT7WGQQuq3yoar7MGeQPqj57w5+Xl599EsIdCGu0bBSYOMDxh5Sm4Dz/zkHkY9NpBJ9pYWVlxHE3mEkGISuD0dvSgNDmwbKBs3282MSZUNI/BvoxutPoZF73VN+UqW9apTw7Ikn7lBvpM0yNYiNm/U3WP+Vkacz48ZtSm8wKOchjqu4XtUDTpn8WVBmTXwK3KhBk=";
+		
+		str_encry = "72pICm%2BhnI1mwy%2BFV4fSfrCV6nZ8Itj%2BYvDmyuSokohjl3T90zcUI360gXhL3j%2FC96xKjvrmTK%2B1kXUs3%2BOL3pZnJR%2Ba9X%2BFaDSvXWCzlnjMbBURdneuYX5qKhRtAO5ttIygry7pGcJean6zIG3X0Aiwc6eDku2OajpfK3VS%2BR4f218WvN2hQVydnLyodBk9R5UBpXpZckh2InvQAvGMt85W%2B1l4ftYy1nR4jNGPxAm7%2BijavEdU151j9itFIisnaPMEDDsCD4FKTgLx58S6p08pe51XF0TNbpicECc3Pjga%2BG2wwd7B6rJCiL0MwrvpM0fke19VPTkwPsN%2FJW41U6fqCXWD%2BU4%2Fg9zv%2B3wmtYjoV4Tq6Nme5buab73V3JrimUudKpmagtHW2CKWSYx84yTurB26hYDrBiDkQ69fOT33lRRk926Zq%2BAMkVekn%2FGu9xpOLw5AySwS0ZT5hyPxmmMOLmIFDLs5xfQiylONE4NQ4N6mqK2173j0kn6%2BZzCLm0yrVhsIHfwq2taU3k3PRVBfblMCkE9Ise7EPE4cAqJUEh%2BA20y3i0RzWYqEYkdcXZ6l%2Fxgwa4NVkSbK9j3G9Fj3bq7CxvZbsZQb0GGPdPTreWAy794gsBRalA%2F1kNEr7yszCTxhz%2BitHyGbg%2F8IrZ3y3OM99xjkCpIvRbWXC2oaaDV6S%2B%2FyLDk76cFGx2abUUTNI1A0nCv2JQKjXMaVD6YWW3zxpp4JwgMSFiF3EbYRA73kym8qb5%2FILMXqFQNmufSpbB%2FROjq49CZvk3C5VynSnvpv6ZlIShhT5owH63haBp5KArM%2FIA088weeBACWepaChMaGLkHbXafGGdxFY89UCmGgsHNF%2Bsgo1PH5WxSiemnAGrHJMNCLSCBQ0JwWfDSRA2ROYqzlHRoCN708%2BbIuyv%2FqDYT7Q2tRTcvbD4Aeexx27sNY3GxVZRro1Pw5u%2BY0Lv%2Fbf%2BmjEiZFXruymzJIOxQLEnnKwMY2elQ6khSlQg491QhHBh%2FPZlxTbhNbsr17Mz9IdRINHGw4EclVfopFXtQxTAdClGnWVa3UbM0x7tbMIsgO6c2jq1eaaIqUMQl%2FkWEpBjnBMeZFc6BZpxHUVbIJFb89r7Gkkm7irncoa71UsnwVza35W%2B%2BvGCJilWbI9peBvW%2F%2BaXaZOiyAPD2S8dJbKNO31hoicQRITIlYnJv2WFEh85q7SKbT12%2BxcxnXb0x%2FWSc%2Bz8dIcR3RX%2B7I7Erj%2F3mbLDDthHC2tLw%3D";
+		
+		str_encry = newData;
+		try {
+			str_encry = URLDecoder.decode(str_encry, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		textView2.setText(str_encry);
+		Log.i("encry", str_encry);
+		writeData("encry");
+		writeData(str_encry);
+		
+		byte[] test_enc = SafeUtil.ReConvert(str_encry.getBytes());
+		byte[] test_denc;
+		test_denc = SafeUtil.decryptRequestData(null, test_enc, "1.8.0");
+		Log.i("decry--", new String(test_denc));
+		writeData("decry--");
+		writeData(new String(test_denc));
+		textView4.setText(new String(test_denc));
+		try {
+
+			textView3.setText(URLEncoder.encode(str_encry, "utf-8"));
+			
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e1){
+			e1.printStackTrace();
+		}
+
+		// 瑙ｅ瘑鏁版嵁
+		byte[] dencry;
+		dencry = SafeUtil.decryptRequestData(null, encry, "3.0.1");
+		//Log.i("decry", new String(dencry));
+
+		new Thread(new HTTPThread()).start();
+
+	}
+
+	private void writeData(String data)
+	{
+		try { 
+			randomFile.write(data.getBytes("gb2312"));
+			randomFile.writeBytes("\r\n");
+		} catch (IOException e)
+		{ 
+			e.printStackTrace(); 
+		} 
+	}
+	
+	// 获取所有城市
+	public void GetAllCity(){
+		queueCity.offer("北京");
+		queueCity.offer("成都");
+		queueCity.offer("广州");
+		queueCity.offer("杭州");
+		queueCity.offer("上海");
+		queueCity.offer("深圳");
+	}
+	
+	// 获取所有大类
+	public void GetAllCategories(){
+		// /listSearchCategories.do
+		// 获取大分类主页
+		String edata = "w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG%2Bx3Nhy5lnrGmcRzC9Ita1OWFq4%2ByqUw73ACIGD1RliJg5ok84FGfohhIi5zEBRoEhaKXwaipHZyfwvZuEudWOvxf4%2FdDhPD7qw9WNCyo1bGu7ryOBjucGOTD9rZVzjOSl7pTr0m3n2wPo6e%2BSOY4H8uwc8IfVnpewY1pojWrOFOf8ZKVND4RIBaIY31Sr1RFRI84Ox5ffO%2BwPBIMbJEFgF2dF7I2K6hpQbjQ2M6d1NnQaTvnRudelkTX%2Fo%2Fd67T7LBbIaznifS3oSt5IRMSzCxrVjVVZ2%2BHRHbQh0gGgKSOIJ%2BF%2FfPOQjlvA%2BC9PYWSs%2FVlbib2kf20sxMEAKTtWT0ej1M3NX%2FE3gCOXQ14aUo%2Bp8Ncc2Z3EDfh0tfLncdHYf0ooqWNl0utJ9S0j6rKEMv19mYiEFpGt3yQ5Ho%2FM%2BK13rgcDD8DZ8StXeGCIQC1KAF7%2F%2B1e2z0KfRFMmpXIZ%2BoBmsvXyyB1GsRGrWYxe8yboIRC%2BUnMc6HPHru6pme68tA7zSHDl%2FyNtvXeB5gghaWbFQ1LDMANEtkuEc2aF0g21FNnO3mkQl%2B8QokAGFk08rrG8ZnJLvhUynY%2FE4XzXGYzoUYuViS4ifG0cmhPFqJsE6Uv3Eo85LVNXB4MXhAsT8HUbABW8UGYZ5ecJlBi2R63pA8PxeaTBBX7mLh1ihiGIDljZfWFNIuAmas9LviruwO3KwDkE94hWXZnc4JBYxDuZK6ia84dehCBP9P3yaRoUOWHqjwHQrAksiFso5YvHD3II7VubDLXRRmYeMzgqqW%2FRbPnW26MsI0XJgWjnAXsw%3D%3D";
+		String strResult = HttpPostData("/listSearchCategories.do", edata);
+		// todo: 解析json push category到队列
+		try{
+			JSONTokener jsonParser = new JSONTokener(strResult);
+			JSONObject jsonObj = (JSONObject) jsonParser.nextValue();
+			JSONArray categories = jsonObj.getJSONArray("result");
+			for(int i = 0;i < categories.length(); i++){
+				JSONObject category = categories.getJSONObject(i);
+				String cateID = category.getString("id");
+				String cateName = category.getString("item_tag_name");
+				Category cate = new Category();
+				cate.cateID = cateID;
+				cate.cateName = cateName;
+				queueCategory.offer(cate);
+			}
+		}catch(JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	// 获取所有子类
+	public void GetAllSubcategories(){
+		// /listSearchCategories.do
+		// 每个大类
+		for(currentCategory = queueCategory.poll(); null != currentCategory; currentCategory = queueCategory.poll())
+		{
+			String strSubcategoies = GetSubCategories(currentCategory.cateID);
+			try{
+				JSONTokener jsonParser = new JSONTokener(strSubcategoies);
+				JSONObject jsonObj = (JSONObject) jsonParser.nextValue();
+				JSONArray categoies = jsonObj.getJSONArray("result");
+				for(int i = 0;i < categoies.length(); i++){
+					JSONObject category = categoies.getJSONObject(i);
+					String cateID = category.getString("id");
+					String cateName = category.getString("item_tag_name");
+					JSONArray subcategoies = category.getJSONArray("childCategories");
+					for(int j = 0; j < subcategoies.length(); j++){
+						JSONObject subcategory = subcategoies.getJSONObject(j);
+						String subcateID = subcategory.getString("id");
+						String subcateName = subcategory.getString("item_tag_name");
+						
+						SubCategory subcate = new SubCategory();
+						subcate.subCateID = subcateID;
+						subcate.subCateName = subcateName;
+						subcate.cateID = cateID;
+						subcate.cateName = cateName;
+						queueSubCategory.offer(subcate);
+					}
+				}
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	// 获取某个category的sub
+	public String GetSubCategories(String parentID)
+	{
+		String edata = "";
+		return HttpPostData("/listSearchCategories.do", edata);
+	}
+	
+	// 获取某个subcategory的product列表
+	public String GetProductsList(String city, String subCategory, String subCategoryID, int page)
+	{
+		String edata = "";
+		return HttpPostData("/proxy_searchItems.do", edata);
+	}
+	
+	// 获取product detail
+	public String GetProductDetail(String productID)
+	{
+		String edata = "";
+		return HttpPostData("/getItemInfo_v2.do.do", edata);
+	}
+
+	public String HttpPostData(String path, String edata) {
+		String strResult = "doPostError";
+		try {
+			HttpClient httpclient = new DefaultHttpClient();
+			String uri = "http://api.buyer.vdian.com" + path;
+					//	+ "/getItemInfo_v2.do"; // 获取某个手提包的详细页
+					//	+ "/proxy_searchItems.do"; // 获取子类商品列表 
+					//	+ "/listSearchCategories.do"; // 获取某个大类的子类
+					//+ "listShoppingCart.do";
+			HttpPost httppost = new HttpPost(uri);
+			// 娣诲姞http澶翠俊鎭�			httppost.addHeader("Content-Encoding", "geili-zip");
+			httppost.addHeader("Accept-Encoding", "geili-zip");
+			httppost.addHeader("Accept-Language", "en-us");
+			httppost.addHeader("encryType", "0");
+			httppost.addHeader("gzipType", "0");
+			httppost.addHeader("Accept", "*/*");
+			httppost.addHeader("Content-Type",
+					"application/x-www-form-urlencoded; charset=UTF-8");
+			httppost.addHeader("User-Agent",
+					"Dalvik/1.6.0 (Linux; U; Android 4.2.2; sdk Build/JB_MR1.1) ");
+			// httppost.addHeader("Host","api.buyer.vdian.com");
+			httppost.addHeader("Connection", "Keep-Alive");
+
+		
+			// JSONObject obj = new JSONObject();
+			// obj.put("name", "your");
+			// obj.put("parentId", "yourparentid");
+			// httppost.setEntity(new StringEntity(obj.toString()));
+			// String
+			// body="apiv=32&edata=w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG9Q%2ByR%2FbI61hpKG0X1s5yqdnToemPDGvEFpJV3KPsvR8SzE38943YB006GVPmduvR9CgRfnguVF4itQHqVUcVOqIK87UhbEkjsTUdBW7vmD%2BSFup4DeXG%2FOm7RZRYEi4AFAAVa1lJ%2BqQ8Tz7coB7kuoAeL4W69BRZ4NUdSfiDgBdQMfUaOqGHlofKqPpyoJD1a5SPHs4WXJn9YrK0Pywh3uNikw4gXsvMy1NOM4UYvDIqzTLBAzMuPGldqCvmryyVPwmpNni4zkEOgQWmBBW8HVEyWtm4cU4kh%2BshoJgWHonQFZPYHadZcnYEIXeXPlLhQp4G93DjO6L7I%2FCns3hiobZxIb2fDDvcpSsyCF9Hr87tgih%2BFxGGVkUjZi7%2Bn8svuSWUqGUw0OON%2FzbbuNILgZAzTKdN030suEiO6JHJnJGJjTkS%2BC8BS7HYaNg3haE841w7qGBfOfQqDV3rgOwMXUr0YcbRf5YJSUagf8KV1AJ5hpIVroJ3MzhtZxsoIh5Uw458K5mdnVEPXyVNTieQrN7T7XKFJmrVoZGRwExMKvmYoeyNookAypw99K6u7RCCzZ91IOiy%2BvT6FGL8AW5CLs0cKB%2FR6mYgTjQuOyfS4DL%2Bi5gADJcR2O2VOMxxWU0IkNvVRcRIvPF18BRgNmeWJksmQFInROS0JbnnUxaVyB5bBQNGr1yz4gBGJMdANcRZ0HGu64fqLhnGLcdoTBjWI%2FRDEMsOoD9obj4A7JYM0Dkv3woCUzAGF%2BgnhfCjRxiPRtNiabYwPXYDrrpHxJUHA6&platform=android&encryType=1&crc=bd62df1aab2f2ec68e322b69bfae6850&gzipTapiv=32&edata=w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG9Q%2ByR%2FbI61hpKG0X1s5yqdnToemPDGvEFpJV3KPsvR8SzE38943YB006GVPmduvR9CgRfnguVF4itQHqVUcVOqIK87UhbEkjsTUdBW7vmD%2BSFup4DeXG%2FOm7RZRYEi4AFAAVa1lJ%2BqQ8Tz7coB7kuoAeL4W69BRZ4NUdSfiDgBdQMfUaOqGHlofKqPpyoJD1a5SPHs4WXJn9YrK0Pywh3uNikw4gXsvMy1NOM4UYvDIqzTLBAzMuPGldqCvmryyVPwmpNni4zkEOgQWmBBW8HVEyWtm4cU4kh%2BshoJgWHonQFZPYHadZcnYEIXeXPlLhQp4G93DjO6L7I%2FCns3hiobZxIb2fDDvcpSsyCF9Hr87tgih%2BFxGGVkUjZi7%2Bn8svuSWUqGUw0OON%2FzbbuNILgZAzTKdN030suEiO6JHJnJGJjTkS%2BC8BS7HYaNg3haE841w7qGBfOfQqDV3rgOwMXUr0YcbRf5YJSUagf8KV1AJ5hpIVroJ3MzhtZxsoIh5Uw458K5mdnVEPXyVNTieQrN7T7XKFJmrVoZGRwExMKvmYoeyNookAypw99K6u7RCCzZ91IOiy%2BvT6FGL8AW5CLs0cKB%2FR6mYgTjQuOyfS4DL%2Bi5gADJcR2O2VOMxxWU0IkNvVRcRIvPF18BRgNmeWJksmQFInROS0JbnnUxaVyB5bBQNGr1yz4gBGJMdANcRZ0HGu64fqLhnGLcdoTBjWI%2FRDEMsOoD9obj4A7JYM0Dkv3woCUzAGF%2BgnhfCjRxiPRtNiabYwPXYDrrpHxJUHA6&platform=android&encryType=1&crc=bd62df1aab2f2ec68e322b69bfae6850&gzipType=0&kid=1.8.0";
+			// String
+			// body="apiv=32&edata=72pICm%2BhnI1mwy%2BFV4fSflncIBJc1OXicDjl0tOmAzpyeiIAal6Ba4Xc2n0o14kUf%2FLpUhLrROAkKZI4b0udC1qZXBfVcTp%2BDy1T3Qe1bcK4%2FbZkDzL0tUOlPpvOteagMmzXNqXOYuB4Rvij8cFenqy7iuvzII5SPXJw5Ox%2B%2FTGy4ZI3RllwL8eqO95Y19WTA2LguzcEqMGHypafrVxKL8ENnYy0u7spyGGcbXNMeR%2FAQaAzFjl%2F0XpVJ4cmqgREPSulvi%2Fu4prHTNzYLpkCLHvwn4UXcqyPCh5R9vx2S%2FUO5TzTpTYIwdmaWXkn4hIe4AQbO%2Bfy61%2B3EL1EcF%2FuEWGRZxgZOqdzLLNy4%2BBZILd%2FB%2BpJww9NOppAWDRP6zu%2FgqZII6G9mKAGAK%2Fkdc%2BKLd%2BWM2A3DK6PRQo7x68zL8l%2B8vkLRWzimCQ6V9AfPKo%2BvIoLgkNnVLfvGsG7N2tg0GRX2mafI4tdGihTJYjP%2FHUcfcKQyoS3sjecVaIKd%2FQmqT9ZdzHoX754G7cEpvrCetY5lJZbI9btEzRP%2FPn0u5YufaFiAuxdK1%2BYtdUONkY7SgIYkGsjNVv%2FuJZZ0KUXqengqH8qcM%2Bj%2BvPWkFEEiBwrNayVqe7QAJCZTyM2RaLdZ2wY%2B8pEDUpXsC0BtIEZSP8%2BUPmysSFgqQuemFi%2BcYQm7eh1rMn2p2NVKwj%2FN53C7ZhZutG3ob%2BhM5swX9dxT%2B5DRPlgVyI%2FcvOzCKE1eESdqxHWgoAgBtP0wj2K2AVGHEOO56CUBN69UEN%2FB6e7qZveLcY161k9o6J%2FDfgw5YDoPaK4qAAwE66FuDt5HEFst90FSxP23lJMOCHdUHHo3dVUieZLZujFCd93jTumm46foert7QbKUik%2BYAw3xuygDh30ccMZ9kxCvHy%2FsD3H%2FM6FGLlYkuInxtHJoTxaibBOlL9xKPOS1TVweDF4QLE%2FB1GwAVvFBmGeXnCZQYtket6QPD8XmkwQV%2B5i4dYoYhiA5Y2X1hTSLgJmrPS74q7sDtysA5BPeIVl2Z3OCQWMQzrNqLpCx8r2MGqMRWKivofCdUpINtL8rFN5ByvTytXt9yCO1bmwy10UZmHjM4Kqlv0Wz51tujLCNFyYFo5wF7M%3D&platform=android&encryType=1&crc=1041402d55bb89d6e6762611370d1e8b&gzipType=0&kid=1.8.0";
+			String body = "apiv=32&edata=" 
+					+ edata
+					//"w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG9Q%2ByR%2FbI61hpKG0X1s5yqdnToemPDGvEFpJV3KPsvR8SzE38943YB006GVPmduvR9CgRfnguVF4itQHqVUcVOqIK87UhbEkjsTUdBW7vmD%2BSFup4DeXG%2FOm7RZRYEi4AErhb0euyJ11uazSwFnKa1s2xPEQr0tbYixsqwRcNMlY9Iw4n88o1vY7w7YU1xjd3QrF9aMnLxp%2FXv4e5KkB6zLNikw4gXsvMy1NOM4UYvDIqzTLBAzMuPGldqCvmryyVPwmpNni4zkEOgQWmBBW8HVEyWtm4cU4kh%2BshoJgWHonQFZPYHadZcnYEIXeXPlLhQp4G93DjO6L7I%2FCns3hiobZxIb2fDDvcpSsyCF9Hr87tgih%2BFxGGVkUjZi7%2Bn8svskyp%2Faz%2FGPuoBfE5hCrnzxhlL1QR0pdjS2%2F9nm5Q4DWpjTkS%2BC8BS7HYaNg3haE841w7qGBfOfQqDV3rgOwMXUr0YcbRf5YJSUagf8KV1AJ2JKKXI%2BuNjQO2OQi5DhGc5zwGlwkILRbk9PFstNFnzRbm2tj56%2F73KPdPnuuj%2BBmIoeyNookAypw99K6u7RCCzZ91IOiy%2BvT6FGL8AW5CLs0cKB%2FR6mYgTjQuOyfS4DL%2Bi5gADJcR2O2VOMxxWU0IkNvVRcRIvPF18BRgNmeWJksmQFInROS0JbnnUxaVyB5bBQNGr1yz4gBGJMdANcRZ0HGu64fqLhnGLcdoTBjWI%2FRDEMsOoD9obj4A7JYM0Dkv3woCUzAGF%2BgnhfCjRxiPRtNiabYwPXYDrrpHxJUHA6" +
+					+ "&platform=android&encryType=1&crc=f96fe697fa806a5e2afacf9c7a106c28&gzipType=0&kid=1.8.0";
+			httppost.setEntity(new StringEntity(body));
+
+			HttpResponse response;
+			response = httpclient.execute(httppost);
+
+			// 妫�獙鐘舵�鐮侊紝濡傛灉鎴愬姛鎺ユ敹鏁版嵁
+			int code = response.getStatusLine().getStatusCode();
+			Log.i("status code", Integer.toString(code));
+			if (code == 200) {
+				byte[] data;
+				byte[] convert_data;
+				byte[] dencry;
+				// String rev = EntityUtils.toString(response.getEntity());// 杩斿洖
+
+				HttpEntity entity = response.getEntity();
+				
+				// int length=(int) entity.getContentLength();
+				int length = 4096;
+				ByteArrayBuffer buffer = new ByteArrayBuffer(length);
+				InputStream is = entity.getContent();
+
+				byte[] tmp = new byte[4096];
+				while (true) {
+					int len = is.read(tmp);
+					if (len == -1)
+						break;
+					buffer.append(tmp, 0, len);
+				}
+				is.close();
+
+				data = buffer.toByteArray();
+
+				//瑙ｅ瘑鏃剁涓変釜鍙傛暟瑕佺湅鍙戦�鏁版嵁鍖呬腑鐨刱id鍊�				
+				dencry = SafeUtil.decryptRequestData(null, data, "1.8.0");
+				
+				//瑙ｅ瘑瀹屼箣鍚庤繕瑕佽В鍘嬬缉
+				String final_dec = new String(gzipdec(dencry));
+				Log.i("final_dec", final_dec);
+				writeData("final_dec");
+				writeData(final_dec);
+				
+				return final_dec;
+			}
+		} catch (ClientProtocolException e) {
+		} catch (IOException e) {
+			strResult = e.getMessage().toString();
+			e.printStackTrace();
+		} catch (Exception e) {
+			strResult = e.getMessage().toString();
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	public class HTTPThread implements Runnable {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			//HttpPostData("/proxy_searchItems.do", newData);
+			// 每个城市
+			for(currentCity = queueCity.poll(); null != currentCity; currentCity = queueCity.poll())
+			{	
+				// 每个子类
+				for (currentSubCategory = queueSubCategory.poll(); null != currentSubCategory; currentSubCategory = queueSubCategory.poll())
+				{
+					// 每个商品
+					for(currentProduct = queueProduct.poll(); null != currentProduct; currentProduct = queueProduct.poll())
+					{
+						
+					}
+				}
+			}
+			
+		}
+	}
+
+	public static byte[] gzipdec(byte[] arg6) {
+	        byte[] v0_3;
+	        if(arg6 != null && arg6.length != 0) {
+	            ByteArrayOutputStream v1 = new ByteArrayOutputStream();
+	            ByteArrayInputStream v2 = new ByteArrayInputStream(arg6);
+	            try {
+	                GZIPInputStream v0_2 = new GZIPInputStream(((InputStream)v2));
+	                byte[] v3 = new byte[256];
+	                while(true) {
+	                    int v4 = v0_2.read(v3);
+	                    if(v4 < 0) {
+	                        break;
+	                    }
+	                    v1.write(v3, 0, v4);
+	                }
+
+	                v0_3 = v1.toByteArray();
+	                v1.close();
+	                return v0_3;
+	            
+	        }
+	            catch (Exception e) {
+	    			String strResult = e.getMessage().toString();
+	    			e.printStackTrace();
+	    		}
+	    }
+	        return null;
+}
+}
