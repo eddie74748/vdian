@@ -96,12 +96,12 @@ public class MainActivity extends Activity {
 	//String data = "{\"body\":{\"newData\":\"W3siaWQiOiIiLCJhY3Rpb24iOiJvcGVuIiwidXNlcklEIjoiIiwidGltZSI6MTQxOTI2NjQ0NTA3Niwic291cmNlIjoiIiwidHlwZSI6ImFwcCJ9XQ==\",\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"t141210223756\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.2.0\",\"android_id\":\"99ab3f322d636e6d\",\"kduss\":\"8db3420df94635622a485bd22add4acb\",\"gender\":\"2\",\"wduss\":\"\",\"dpi\":\"240\",\"apiv\":\"32\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1419266659978_593294\",\"appstatus\":\"active\",\"h\":\"800\",\"w\":\"480\",\"guid\":\"1419266503705_1055996\",\"userID\":\"288722267\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1010n\",\"anony\":\"@anonymous:_000000000000000\"}}";
 	RandomAccessFile randomFile;
 	
-	int bNeedGetSubCate = 1;
+	//int bNeedGetSubCate = 1;
 	RandomAccessFile subcateFile;
 	
 	RandomAccessFile cityFile;
 	
-	static int bMobilePhoneEncode = 0;
+	//static int bMobilePhoneEncode = 0;
 	
 	int MSG_CITY = 0,
 		MSG_CATE = 1,
@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
 	    	//这里就可以从msg取出你从线程中传到UI线程的东西； 
 	    	String strMessage = (String)msg.obj;
 	    	String txt = strMessage;
-	    	if(bMobilePhoneEncode == 1)
+	    	/*if(bMobilePhoneEncode == 1)
 	    	{
 	    		try{
 		    		txt = new String(strMessage.getBytes("utf-8"), "gbk");
@@ -122,6 +122,7 @@ public class MainActivity extends Activity {
 		    		e.printStackTrace();
 		    	}
 	    	}
+	    	*/
 	    	
 	    	switch(msg.what)
 	    	{
@@ -161,7 +162,8 @@ public class MainActivity extends Activity {
 	Queue<Category> queueCategory = new LinkedList<Category>();
 	Category currentCategory;
 	Queue<String> queueCity = new LinkedList<String>();
-	String currentCity;
+	String dataFileName = "vdian_data_debug.csv";
+	String currentCity = "debug";
 	Queue<SubCategory> queueSubCategory = new LinkedList<SubCategory>();
 	SubCategory currentSubCategory;
 	Queue<String> queueProduct = new LinkedList<String>();
@@ -182,20 +184,27 @@ public class MainActivity extends Activity {
 	int bRunning = 0;
 	private Logger gLogger;
     
+	//final LogConfigurator writerConfigurator = new LogConfigurator();
+	final LogConfigurator logConfigurator = new LogConfigurator();
 	public void configLog()
-	{
-		final LogConfigurator logConfigurator = new LogConfigurator();
-		
-		logConfigurator.setFileName(Environment.getExternalStorageDirectory() + File.separator + "vdian.log");
+	{	
+		//writerConfigurator.setFileName(Environment.getExternalStorageDirectory() + File.separator + "kuaidi.data");
+		logConfigurator.setFileName(Environment.getExternalStorageDirectory() + File.separator + dataFileName);
 		// Set the root log level
+		//writerConfigurator.setRootLevel(Level.DEBUG);
 		logConfigurator.setRootLevel(Level.DEBUG);
-		logConfigurator.setMaxFileSize(1024 * 1024 * 500);
+		///writerConfigurator.setMaxFileSize(1024 * 1024 * 500);
+		logConfigurator.setMaxFileSize(1024 * 1024 * 1024);
 		// Set log level of a specific logger
+		//writerConfigurator.setLevel("org.apache", Level.ERROR);
 		logConfigurator.setLevel("org.apache", Level.ERROR);
+		logConfigurator.setImmediateFlush(true);
+		//writerConfigurator.configure();
 		logConfigurator.configure();
 
-		gLogger = Logger.getLogger(this.getClass());
-		//gLogger = Logger.getLogger("CrifanLiLog4jTest");
+		//gLogger = Logger.getLogger(this.getClass());
+		//gWriter = 
+		gLogger = Logger.getLogger("vdian");
 	}
 	// String
 	// data="{\"body\":{\"newData\":\"W3siaWQiOiIiLCJhY3Rpb24iOiJvcGVuIiwidXNlcklEIjoiIiwidGltZSI6MTQxOTMwMjU0NTg3Niwic291cmNlIjoiIiwidHlwZSI6ImFwcCJ9XQ==\",\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"t141210223756\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.2.0\",\"android_id\":\"99ab3f322d636e6d\",\"kduss\":\"436e7eda4abd9b87e0da3f5e417a5eaa\",\"gender\":\"2\",\"wduss\":\"\",\"dpi\":\"240\",\"apiv\":\"32\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1419302546100_707400\",\"appstatus\":\"active\",\"h\":\"800\",\"w\":\"480\",\"guid\":\"1419302556151_947549\",\"userID\":\"289465887\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1010n\",\"anony\":\"@anonymous:_000000000000000\"}}";
@@ -251,7 +260,7 @@ public class MainActivity extends Activity {
 		
 		str_encry = newData;
 		*/
-		String str_encry = "w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG%2Bx3Nhy5lnrGmcRzC9Ita1OWFq4%2ByqUw73ACIGD1RliJg5ok84FGfohhIi5zEBRoEhaKXwaipHZyfwvZuEudWOvxf4%2FdDhPD7qw9WNCyo1bGu7ryOBjucGOTD9rZVzjOSl7pTr0m3n2wPo6e%2BSOY4H8uwc8IfVnpewY1pojWrOFOf8ZKVND4RIBaIY31Sr1RFRI84Ox5ffO%2BwPBIMbJEFgF2dF7I2K6hpQbjQ2M6d1NnQaTvnRudelkTX%2Fo%2Fd67T7LBbIaznifS3oSt5IRMSzCxrVjVVZ2%2BHRHbQh0gGgKSOIJ%2BF%2FfPOQjlvA%2BC9PYWSs%2FVlbib2kf20sxMEAKTtWT0ej1M3NX%2FE3gCOXQ14aUo%2Bp8Ncc2Z3EDfh0tfLncdHYf0ooqWNl0utJ9S0j6rKEMv19mYiEFpGt3yQ5Ho%2FM%2BK13rgcDD8DZ8StXeGCIQC1KAF7%2F%2B1e2z0KfRFMmpXIZ%2BoBmsvXyyB1GsRGrWYxe8yboIRC%2BUnMc6HPHru6pme68tA7zSHDl%2FyNtvXeB5gghaWbFQ1LDMANEtkuEc2aF0g21FNnO3mkQl%2B8QokAGFk08rrG8ZnJLvhUynY%2FE4XzXGYzoUYuViS4ifG0cmhPFqJsE6Uv3Eo85LVNXB4MXhAsT8HUbABW8UGYZ5ecJlBi2R63pA8PxeaTBBX7mLh1ihiGIDljZfWFNIuAmas9LviruwO3KwDkE94hWXZnc4JBYxDuZK6ia84dehCBP9P3yaRoUOWHqjwHQrAksiFso5YvHD3II7VubDLXRRmYeMzgqqW%2FRbPnW26MsI0XJgWjnAXsw%3D%3D";
+		String str_encry = "w4xeRP9vuZa27RHQ7zvti05zC6lyrjqyMnKIVTEwrWokemYYxxAnBqamBD0KqmD0MLjoQ2Ns2Z8KmpvpbPgA30yll9qWfoSkrt1BWcblx6SogybffEijODmjTZOyoSRgPWj5bOIKlUUpq7%2FipOBa390LS5LeEESac3chlER0nJi4v%2BUB5Rsz2MZhxHdFddaNZd%2BGx9OD6ulMWMh7uOb5Ht97p8U6ne97%2FLgVkq9PLHifs6kWOOQyh6%2F%2BKRL976%2BEuFhWT1pgtrqxkEt9MoND5HQgKAZhoqbfIf8hlMRjTa1YbQncJ8XPP7WTX5eC%2BbRrEOnqCOdOh3zFPa%2BovQK7HkwvSwiL%2Fwovnn9PJVid7%2FGYHlRcctrgJlvXLXOz29PJR2nNvT3JFpqUcIFD5b9FU4R5APAKaKg89kLcd9jUjrSyH8g%2BROYmI%2FdKVmcu7MyGV4XyRCdhEBVFMmxfCUBvMf%2FtzWjLtfgzomyzdRp0ykDPKrfZlVj6gmyH6MFvqnhhBpO%2BdG516WRNf%2Bj93rtPssdpaBj%2FNVRuI%2FjnGj6Q4bwg%2FuQXef%2BhxrZulLJ%2BLF9bf0Oopzo6Zj%2BVPyzNziQQ4NWVuJvaR%2FbSzEwQApO1ZPTCpXJIYoYvn6AsXRq4NP8Snh3cGiLhVOFlo3c3SqSeEcZ0k2RwbrBCbLTY4AkrbwUT0%2B4qt01oVX12q2mn5XvWmWUJ6S6TnAFzN5XJg40msIcIaa2x6BTkPe7wdlmS3ky7FwK7pDLbGFskdiiWib3tfsip1OOYxAuMyNV8lNNRBAHrvKQ36ZGZzPQX1fyDoEm6NOEswF%2BvlLw%2B8fL%2FX1dMqIBb6uWkRJ9BdxZysllss7ffst7tIDkgd84%2FeHREzEPjZFZCRm5wi57c7VINVanasY7noM5VnWIeQZdiPzl0yC85edtS3vvYRZr7Nkuf6Wgx7tbMIsgO6c2jq1eaaIqUMQl%2FkWEpBjnBMeZFc6BZpwlG1p2oBg1sD7l4WIF%2F7prZx6ecfrUro2DkWdSj4odb9AmaNaUFAK2cOmr7HNoMoxlG5T5zik%2BB3TYShjhlMeONENE2ex6KT8MGlYBNiZtbvA9yd4yCuFq4SCSYuk9cOAl27KATwsTLz6rO5Wb0ZNt3Nz5j4KCepY3mOPiiwV8MbTYmm2MD12A666R8SVBwOg%3D%3D";
 		
 		try {
 			str_encry = URLDecoder.decode(str_encry, "utf-8");
@@ -300,7 +309,13 @@ public class MainActivity extends Activity {
 	{
 		try
 		{
-			infoFile = new RandomAccessFile(Environment.getExternalStorageDirectory().getPath() + "/vdian_info.txt", "rw"); 
+			String fileName = Environment.getExternalStorageDirectory().getPath() + "/vdian_info.txt";
+			File file = new File(fileName);
+			if(file.exists())
+			{
+				file.delete();
+			}
+			infoFile = new RandomAccessFile(fileName, "rw"); 
 			String strInfo = "0000" + "," + city + "," + cate + "," + subCate + "," + page + "," + index;
 			infoFile.writeBytes(new String(strInfo.getBytes("GBK"), "ISO8859_1"));
 			infoFile.writeBytes("\r\n");
@@ -339,7 +354,7 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	private void writeSubCate(String subcate)
+	/*private void writeSubCate(String subcate)
 	{
 		try { 
 			subcateFile = new RandomAccessFile(Environment.getExternalStorageDirectory().getPath() + "/vdian_subcate.txt", "rw");
@@ -353,9 +368,21 @@ public class MainActivity extends Activity {
 		{ 
 			e.printStackTrace(); 
 		}
+	}*/
+	
+	private void writeData(String data)
+	{
+		String newDataFileName = "vdian_data_" + currentCity + ".csv";
+		if(!dataFileName.equalsIgnoreCase(newDataFileName))
+		{
+			dataFileName = newDataFileName;
+			configLog();
+		}
+		
+		gLogger.debug(data);
 	}
 
-	private void writeData(String data)
+	/*private void writeData(String data)
 	{
 		try {
 			// 打开一个随机访问文件流，按读写方式 
@@ -372,7 +399,8 @@ public class MainActivity extends Activity {
 		{ 
 			e.printStackTrace(); 
 		} 
-	}
+	}*/
+	
 	
 	// 获取所有城市
 	public void GetAllCity(){
@@ -407,17 +435,22 @@ public class MainActivity extends Activity {
 	public void GetAllCategories(){
 		// /listSearchCategories.do
 		// 获取大分类主页
-		String edata = "w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG%2Bx3Nhy5lnrGmcRzC9Ita1OWFq4%2ByqUw73ACIGD1RliJg5ok84FGfohhIi5zEBRoEhaKXwaipHZyfwvZuEudWOvxf4%2FdDhPD7qw9WNCyo1bGu7ryOBjucGOTD9rZVzjOSl7pTr0m3n2wPo6e%2BSOY4H8uwc8IfVnpewY1pojWrOFOf8ZKVND4RIBaIY31Sr1RFRI84Ox5ffO%2BwPBIMbJEFgF2dF7I2K6hpQbjQ2M6d1NnQaTvnRudelkTX%2Fo%2Fd67T7LBbIaznifS3oSt5IRMSzCxrVjVVZ2%2BHRHbQh0gGgKSOIJ%2BF%2FfPOQjlvA%2BC9PYWSs%2FVlbib2kf20sxMEAKTtWT0ej1M3NX%2FE3gCOXQ14aUo%2Bp8Ncc2Z3EDfh0tfLncdHYf0ooqWNl0utJ9S0j6rKEMv19mYiEFpGt3yQ5Ho%2FM%2BK13rgcDD8DZ8StXeGCIQC1KAF7%2F%2B1e2z0KfRFMmpXIZ%2BoBmsvXyyB1GsRGrWYxe8yboIRC%2BUnMc6HPHru6pme68tA7zSHDl%2FyNtvXeB5gghaWbFQ1LDMANEtkuEc2aF0g21FNnO3mkQl%2B8QokAGFk08rrG8ZnJLvhUynY%2FE4XzXGYzoUYuViS4ifG0cmhPFqJsE6Uv3Eo85LVNXB4MXhAsT8HUbABW8UGYZ5ecJlBi2R63pA8PxeaTBBX7mLh1ihiGIDljZfWFNIuAmas9LviruwO3KwDkE94hWXZnc4JBYxDuZK6ia84dehCBP9P3yaRoUOWHqjwHQrAksiFso5YvHD3II7VubDLXRRmYeMzgqqW%2FRbPnW26MsI0XJgWjnAXsw%3D%3D";		
-		String strResult = HttpPostData("/listSearchCategories.do", edata);
+		String edata = FormatStrGetRootCate();//"w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG%2Bx3Nhy5lnrGmcRzC9Ita1OWFq4%2ByqUw73ACIGD1RliJg5ok84FGfohhIi5zEBRoEhaKXwaipHZyfwvZuEudWOvxf4%2FdDhPD7qw9WNCyo1bGu7ryOBjucGOTD9rZVzjOSl7pTr0m3n2wPo6e%2BSOY4H8uwc8IfVnpewY1pojWrOFOf8ZKVND4RIBaIY31Sr1RFRI84Ox5ffO%2BwPBIMbJEFgF2dF7I2K6hpQbjQ2M6d1NnQaTvnRudelkTX%2Fo%2Fd67T7LBbIaznifS3oSt5IRMSzCxrVjVVZ2%2BHRHbQh0gGgKSOIJ%2BF%2FfPOQjlvA%2BC9PYWSs%2FVlbib2kf20sxMEAKTtWT0ej1M3NX%2FE3gCOXQ14aUo%2Bp8Ncc2Z3EDfh0tfLncdHYf0ooqWNl0utJ9S0j6rKEMv19mYiEFpGt3yQ5Ho%2FM%2BK13rgcDD8DZ8StXeGCIQC1KAF7%2F%2B1e2z0KfRFMmpXIZ%2BoBmsvXyyB1GsRGrWYxe8yboIRC%2BUnMc6HPHru6pme68tA7zSHDl%2FyNtvXeB5gghaWbFQ1LDMANEtkuEc2aF0g21FNnO3mkQl%2B8QokAGFk08rrG8ZnJLvhUynY%2FE4XzXGYzoUYuViS4ifG0cmhPFqJsE6Uv3Eo85LVNXB4MXhAsT8HUbABW8UGYZ5ecJlBi2R63pA8PxeaTBBX7mLh1ihiGIDljZfWFNIuAmas9LviruwO3KwDkE94hWXZnc4JBYxDuZK6ia84dehCBP9P3yaRoUOWHqjwHQrAksiFso5YvHD3II7VubDLXRRmYeMzgqqW%2FRbPnW26MsI0XJgWjnAXsw%3D%3D";		
+		String strResult = HttpPostData("/appserver_getRootCategories.do"/*"/listSearchCategories.do"*/, edata);
 		// todo: 解析json push category到队列
 		try{
 			JSONTokener jsonParser = new JSONTokener(strResult);
 			JSONObject jsonObj = (JSONObject) jsonParser.nextValue();
-			JSONArray categories = jsonObj.getJSONArray("result");
+			JSONObject resultObj = jsonObj.getJSONObject("result");
+			JSONObject dataObj = resultObj.getJSONObject("data");
+			JSONArray topCategories = dataObj.getJSONArray("categories");
+			JSONObject rootCategory = topCategories.getJSONObject(0);
+			JSONArray categories = rootCategory.getJSONArray("sub_categories");
+			
 			for(int i = 0;i < categories.length(); i++){
 				JSONObject category = categories.getJSONObject(i);
 				String cateID = category.getString("id");
-				String cateName = category.getString("item_tag_name");
+				String cateName = category.getString("name");
 				// 检查cate是否已经抓去过
 				if(bStartGetCate == 0)
 				{
@@ -452,16 +485,18 @@ public class MainActivity extends Activity {
 			try{
 				JSONTokener jsonParser = new JSONTokener(strSubcategoies);
 				JSONObject jsonObj = (JSONObject) jsonParser.nextValue();
-				JSONArray categoies = jsonObj.getJSONArray("result");
+				JSONObject resultObj = jsonObj.getJSONObject("result");
+				JSONObject dataObj = resultObj.getJSONObject("data");
+				JSONArray categoies = dataObj.getJSONArray("categories");
 				for(int i = 0;i < categoies.length(); i++){
 					JSONObject category = categoies.getJSONObject(i);
-					String cateID = category.getString("id");
-					String cateName = category.getString("item_tag_name");
-					JSONArray subcategoies = category.getJSONArray("childCategories");
+					String cateID = "Na";
+					String cateName = category.getString("name");
+					JSONArray subcategoies = category.getJSONArray("sub_categories");
 					for(int j = 0; j < subcategoies.length(); j++){
 						JSONObject subcategory = subcategoies.getJSONObject(j);
 						String subcateID = subcategory.getString("id");
-						String subcateName = subcategory.getString("item_tag_name");
+						String subcateName = subcategory.getString("name");
 						// 检查subcate是否已经抓去过
 						if(bStartGetSubCate == 0)
 						{
@@ -482,8 +517,8 @@ public class MainActivity extends Activity {
 						subcate.cateID = currentCategory.cateID;
 						subcate.cateName = currentCategory.cateName;
 						queueSubCategory.offer(subcate);
-						String subcateLine = currentCategory.cateID + "," + currentCategory.cateName + "," + cateID + "," + cateName + "," + subcateID + "," + subcateName;
-						writeSubCate(subcateLine);
+					//	String subcateLine = currentCategory.cateID + "," + currentCategory.cateName + "," + cateID + "," + cateName + "," + subcateID + "," + subcateName;
+					//	writeSubCate(subcateLine);
 					}
 				}
 			}catch(JSONException e)
@@ -493,7 +528,7 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	private int SubCateFileExists()
+	/*private int SubCateFileExists()
 	{
 		File file = new File(Environment.getExternalStorageDirectory().getPath() + "/vdian_subcate.txt");
 		if(file.exists())
@@ -506,7 +541,8 @@ public class MainActivity extends Activity {
 			return 1;
 		}
 	}
-	
+	*/
+	/*
 	private void ReadAllSubcateFormFile()
 	{
 		try{
@@ -546,12 +582,12 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-	
+	*/
 	// 获取某个category的sub
 	public String GetSubCategories(String parentID)
 	{
 		String edata = FormatStrGetSubCate(parentID);
-		return HttpPostData("/listSearchCategories.do", edata);
+		return HttpPostData("/appserver_getSubCategories.do"/*"/listSearchCategories.do"*/, edata);
 	}
 	
 	// 获取某个subcategory的product列表
@@ -566,7 +602,7 @@ public class MainActivity extends Activity {
 	{
 		String edata = FormatStrGetProductDetail(productID, subCateName);
 		
-		return HttpPostData("/getItemInfo_v2.do", edata);
+		return HttpPostData("/appserver_getItemInfo.do"/*"/getItemInfo_v2.do"*/, edata);
 	}
 
 	public void UpdateUI(int type, String info)
@@ -592,13 +628,13 @@ public class MainActivity extends Activity {
 			UpdateUI(MSG_CITY, "Getting All City");
 			GetAllCity();
 			
-			int bCategoryGot = 0;
+			//int bCategoryGot = 0;
 			
 			// 加载上一次抓到得最后一个商品
 			UpdateUI(MSG_CITY, "Loading Last Time Info");
 			loadInfo();
 			
-			bNeedGetSubCate = SubCateFileExists();
+			//bNeedGetSubCate = SubCateFileExists();
 			
 			// 每个城市
 			for(currentCity = queueCity.poll(); null != currentCity; currentCity = queueCity.poll())
@@ -620,22 +656,22 @@ public class MainActivity extends Activity {
 				UpdateUI(MSG_CITY, currentCity);
 				
 				// 仅一次  读文件或者网络
-				if(bCategoryGot == 0)
-				{
-					bCategoryGot = 1;
-					if(bNeedGetSubCate == 1){
-						Log.i("Status", "Getting All Categories");
-						UpdateUI(MSG_CATE, "Getting All Categories");
-						GetAllCategories();
-						Log.i("Status", "Getting All Subcategories");
-						GetAllSubcategories();
-						bNeedGetSubCate = 0;
-					}else
-					{
-						UpdateUI(MSG_SUBCATE, "Reading All Subcategories from file...");
-						ReadAllSubcateFormFile();
-					}
-				}
+				//if(bCategoryGot == 0)
+				//{
+				//	bCategoryGot = 1;
+					//if(bNeedGetSubCate == 1){
+					Log.i("Status", "Getting All Categories");
+					UpdateUI(MSG_CATE, "Getting All Categories");
+					GetAllCategories();
+					Log.i("Status", "Getting All Subcategories");
+					GetAllSubcategories();
+					//	bNeedGetSubCate = 0;
+					//}else
+					//{
+					//	UpdateUI(MSG_SUBCATE, "Reading All Subcategories from file...");
+					//	ReadAllSubcateFormFile();
+					//}
+				//}
 				
 				// 每个子类
 				int subCateNo = 0;
@@ -754,23 +790,27 @@ public class MainActivity extends Activity {
 									continue;
 								}
 								JSONObject result1 = jsonObj1.getJSONObject("result");
-								String product_Name = result1.getString("name").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String product_ID = result1.getString("product_id").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String product_Price = result1.getString("price").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String product_msrPrice = result1.getString("msrprice").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String product_soldout = result1.getString("soldout").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String favourites = result1.getString("favorite").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String comments = result1.getString("commentAmount").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								JSONObject data1 = result1.getJSONObject("data");
+								JSONObject item1 = data1.getJSONObject("item");
+								String product_Name = item1.getString("name").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								String product_ID = item1.getString("product_id").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								String product_Price = item1.getString("price").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								//String product_msrPrice = item1.getString("msrprice").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								String product_soldout = item1.getString("soldout").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								int favourites = item1.getInt("favorite_count");
 								
-								JSONObject shop = result1.getJSONObject("shop");
-								String shop_name = shop.getString("entranceName").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String wechat_id = shop.getString("wechat_id").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
-								String location = shop.getString("sellerLocus").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								JSONObject exentd = item1.getJSONObject("extend");
+								int comments = exentd.getInt("comment_count");
+								
+								JSONObject shop = data1.getJSONObject("shop");
+								String shop_name = shop.getString("shop_name").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								String shop_id = shop.getString("shop_id").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
+								String location = shop.getString("place_name").replaceAll(",", "").replaceAll("\r", "").replaceAll("\n", "");
 								
 								String cate_name = currentSubCategory.cateName;
 								String mid_cate_name = currentSubCategory.midCateName;
 								String sub_cate_name = currentSubCategory.subCateName;
-								if(1 == bMobilePhoneEncode)
+								/*if(1 == bMobilePhoneEncode)
 								{
 									try{
 										cate_name = new String(currentSubCategory.cateName.getBytes("utf-8"), "gbk");
@@ -780,7 +820,7 @@ public class MainActivity extends Activity {
 									{
 										e.printStackTrace();
 									}	
-								}
+								}*/
 
 								String strProductLine = currentCity + ", " +
 										cate_name + "," + currentSubCategory.cateID + "," +
@@ -789,12 +829,12 @@ public class MainActivity extends Activity {
 										product_Name + "," +
 										product_ID + "," +
 										product_Price + "," +
-										product_msrPrice + "," +
+										"Na" + "," +
 										product_soldout + "," +
 										favourites + "," +
 										comments + "," +
 										shop_name + "," +
-										wechat_id + "," +
+										shop_id + "," +
 										location;
 								
 								writeData(strProductLine);
@@ -816,25 +856,34 @@ public class MainActivity extends Activity {
 						}
 					}
 				}
-				bCategoryGot = 0;
+				//bCategoryGot = 0;
 			}
 			UpdateUI(MSG_PRODUCT, "Spider finished successfully!!");
 		}
 		
 	}
 	
+	private String FormatStrGetRootCate()
+	{
+		String edata_plain = "{\"body\":{\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"0_\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"58:7f:66:95:f3:32\",\"build\":\"buildnum\",\"islogin\":\"1\",\"serial_no\":\"P4M7N15326043570\",\"network\":\"WIFI\",\"version\":\"2.2.0\",\"android_id\":\"28f524c904ec7b2e\",\"kduss\":\"c11bb0e7eb751884679521a173d8777c\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"475118685\",\"dpi\":\"480\",\"apiv\":\"45\",\"platform\":\"android\",\"os\":\"19\",\"wifiID\":\"\",\"imei\":\"865166028760026\",\"loc\":\"120.404428,31.226557,0.0\",\"sessionid\":\"ks_3_1436615211590_707281\",\"appstatus\":\"active\",\"h\":\"1812\",\"w\":\"1080\",\"guid\":\"1436613930120_8898674\",\"userID\":\"475118685\",\"mStation\":\"mcc=460&mnc=1&lac=10000&cellId=10000\",\"brand\":\"Huawei\",\"mid\":\"HUAWEI_MT7-TL00\",\"imsi\":\"460011510506624\",\"channel\":\"1000n\",\"anony\":\"@anonymous:58:7f:66:95:f3:32_865166028760026\"}}";
+		String edata = EncryptString(edata_plain);
+		return edata;
+	}
+	
 	private String FormatStrGetSubCate(String parentID)
 	{
 		String edata_plain = "{\"body\":{\"productSource\":\"w2c\",\"parent_id\":\"" + 
 							parentID + 
-							"\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"20150210113510\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.8.0\",\"android_id\":\"549ad29c7d2ce3b0\",\"kduss\":\"cf5200247abb66e22232c16e11a1e8b8\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"346264345\",\"dpi\":\"320\",\"apiv\":\"39\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1425994143494_357291\",\"appstatus\":\"active\",\"h\":\"1184\",\"w\":\"720\",\"guid\":\"1423993007870_7189536\",\"userID\":\"346264345\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1004n\",\"anony\":\"@anonymous:_000000000000000\"}}";
+							/*"\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"20150210113510\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.8.0\",\"android_id\":\"549ad29c7d2ce3b0\",\"kduss\":\"cf5200247abb66e22232c16e11a1e8b8\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"346264345\",\"dpi\":\"320\",\"apiv\":\"39\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1425994143494_357291\",\"appstatus\":\"active\",\"h\":\"1184\",\"w\":\"720\",\"guid\":\"1423993007870_7189536\",\"userID\":\"346264345\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1004n\",\"anony\":\"@anonymous:_000000000000000\"}}";*/
+							"\"},\"header\":{\"netsubtype\":\"0_\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"58:7f:66:95:f3:32\",\"build\":\"buildnum\",\"islogin\":\"1\",\"serial_no\":\"P4M7N15326043570\",\"network\":\"WIFI\",\"version\":\"2.2.0\",\"android_id\":\"28f524c904ec7b2e\",\"kduss\":\"c11bb0e7eb751884679521a173d8777c\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"475118685\",\"dpi\":\"480\",\"apiv\":\"45\",\"platform\":\"android\",\"os\":\"19\",\"wifiID\":\"\",\"imei\":\"865166028760026\",\"loc\":\"\",\"sessionid\":\"ks_3_1436614344360_917351\",\"appstatus\":\"active\",\"h\":\"1812\",\"w\":\"1080\",\"guid\":\"1436613930120_8898674\",\"userID\":\"475118685\",\"mStation\":\"mcc=460&mnc=1&lac=17692&cellId=22947\",\"brand\":\"Huawei\",\"mid\":\"HUAWEI_MT7-TL00\",\"imsi\":\"460011510506624\",\"channel\":\"1000n\",\"anony\":\"@anonymous:58:7f:66:95:f3:32_865166028760026\"}}";
 		String edata = EncryptString(edata_plain);
 		return edata;
 	}
 	
 	private String FormatStrGetProductList(String city, String cateID, String cateName, String subCateID, String subCateName, String page)
 	{
-		String edata_plain = "{\"body\":{\"limit\":\"20\",\"key_word\":\"" +
+		String edata_plain = "{\"body\":{\"limit\":\"20\",\"reqID\":\"SEARCH_cat_city_"+subCateName+"\",\"category_id\":\""+subCateID+"\",\"lng\":\"120.404428\",\"city\":\""+city+"\",\"key_word\":\""+subCateName+"\",\"productSource\":\"w2c\",\"flag\":\"cat\",\"order\":\"desc\",\"page\":\""+page+"\",\"sort_key\":\"default\",\"nearby\":\"0\",\"district\":\"\",\"option\":\"1\",\"lat\":\"31.226557\"},\"header\":{\"netsubtype\":\"0_\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"58:7f:66:95:f3:32\",\"build\":\"buildnum\",\"islogin\":\"1\",\"serial_no\":\"P4M7N15326043570\",\"network\":\"WIFI\",\"version\":\"2.2.0\",\"android_id\":\"28f524c904ec7b2e\",\"kduss\":\"c11bb0e7eb751884679521a173d8777c\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"475118685\",\"dpi\":\"480\",\"apiv\":\"45\",\"platform\":\"android\",\"os\":\"19\",\"wifiID\":\"\",\"imei\":\"865166028760026\",\"loc\":\"120.404428,31.226557,0.0\",\"sessionid\":\"ks_3_1436618108865_665366\",\"appstatus\":\"active\",\"h\":\"1812\",\"w\":\"1080\",\"guid\":\"1436613930120_8898674\",\"userID\":\"475118685\",\"mStation\":\"mcc=460&mnc=1&lac=10000&cellId=10000\",\"brand\":\"Huawei\",\"mid\":\"HUAWEI_MT7-TL00\",\"imsi\":\"460011510506624\",\"channel\":\"1000n\",\"anony\":\"@anonymous:58:7f:66:95:f3:32_865166028760026\"}}";
+							/*"{\"body\":{\"limit\":\"20\",\"key_word\":\"" +
 							subCateName + 
 							"\",\"productSource\":\"w2c\",\"flag\":\"cat\",\"order\":\"desc\",\"page\":\"" +
 							page + 
@@ -844,18 +893,23 @@ public class MainActivity extends Activity {
 							subCateID + 
 							"\",\"nearby\":\"0\",\"district\":\"\",\"option\":\"1\",\"city\":\"" +
 							city + 
-							"\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"20150210113510\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.8.0\",\"android_id\":\"549ad29c7d2ce3b0\",\"kduss\":\"cf5200247abb66e22232c16e11a1e8b8\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"346264345\",\"dpi\":\"320\",\"apiv\":\"39\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1426166253426_756085\",\"appstatus\":\"active\",\"h\":\"1184\",\"w\":\"720\",\"guid\":\"1423993007870_7189536\",\"userID\":\"346264345\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1004n\",\"anony\":\"@anonymous:_000000000000000\"}}";
+							"\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"20150210113510\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.8.0\",\"android_id\":\"549ad29c7d2ce3b0\",\"kduss\":\"cf5200247abb66e22232c16e11a1e8b8\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"346264345\",\"dpi\":\"320\",\"apiv\":\"39\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1426166253426_756085\",\"appstatus\":\"active\",\"h\":\"1184\",\"w\":\"720\",\"guid\":\"1423993007870_7189536\",\"userID\":\"346264345\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1004n\",\"anony\":\"@anonymous:_000000000000000\"}}";*/
+				
+		
 		String edata = EncryptString(edata_plain);
 		return edata;
 	}
 	
 	private String FormatStrGetProductDetail(String productID, String subCateName)
 	{
-		String edata_plain = "{\"body\":{\"id\":\"" +
+		String edata_plain = "{\"body\":{\"product_id\":\""+productID+"\",\"productSource\":\"w2c\",\"reqID\":\"SEARCH_cat_city_"+subCateName+"\"},\"header\":{\"netsubtype\":\"0_\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"58:7f:66:95:f3:32\",\"build\":\"buildnum\",\"islogin\":\"1\",\"serial_no\":\"P4M7N15326043570\",\"network\":\"WIFI\",\"version\":\"2.2.0\",\"android_id\":\"28f524c904ec7b2e\",\"kduss\":\"c11bb0e7eb751884679521a173d8777c\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"475118685\",\"dpi\":\"480\",\"apiv\":\"45\",\"platform\":\"android\",\"os\":\"19\",\"wifiID\":\"\",\"imei\":\"865166028760026\",\"loc\":\"120.404428,31.226557,0.0\",\"sessionid\":\"ks_3_1436618443467_960610\",\"appstatus\":\"active\",\"h\":\"1812\",\"w\":\"1080\",\"guid\":\"1436613930120_8898674\",\"userID\":\"475118685\",\"mStation\":\"mcc=460&mnc=1&lac=10000&cellId=10000\",\"brand\":\"Huawei\",\"mid\":\"HUAWEI_MT7-TL00\",\"imsi\":\"460011510506624\",\"channel\":\"1000n\",\"anony\":\"@anonymous:58:7f:66:95:f3:32_865166028760026\"}}"; 
+							/*"{\"body\":{\"id\":\"" +
 							productID +
 							"\",\"reqID\":\"SEARCH_cat_" +
 							subCateName +
-							"\",\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"20150210113510\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.8.0\",\"android_id\":\"549ad29c7d2ce3b0\",\"kduss\":\"cf5200247abb66e22232c16e11a1e8b8\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"346264345\",\"dpi\":\"320\",\"apiv\":\"39\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1426081220384_468078\",\"appstatus\":\"active\",\"h\":\"1184\",\"w\":\"720\",\"guid\":\"1423993007870_7189536\",\"userID\":\"346264345\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1004n\",\"anony\":\"@anonymous:_000000000000000\"}}";
+							"\",\"productSource\":\"w2c\"},\"header\":{\"netsubtype\":\"3_UMTS\",\"wduserID\":\"\",\"appid\":\"com.koudai.weidian.buyer\",\"mac\":\"\",\"build\":\"20150210113510\",\"islogin\":\"1\",\"serial_no\":\"unknown\",\"network\":\"3G\",\"version\":\"1.8.0\",\"android_id\":\"549ad29c7d2ce3b0\",\"kduss\":\"cf5200247abb66e22232c16e11a1e8b8\",\"gender\":\"2\",\"wduss\":\"\",\"user_id\":\"346264345\",\"dpi\":\"320\",\"apiv\":\"39\",\"platform\":\"android\",\"os\":\"17\",\"wifiID\":\"\",\"imei\":\"000000000000000\",\"loc\":\"\",\"sessionid\":\"1426081220384_468078\",\"appstatus\":\"active\",\"h\":\"1184\",\"w\":\"720\",\"guid\":\"1423993007870_7189536\",\"userID\":\"346264345\",\"mStation\":\"mcc=310&mnc=260&lac=10000&cellId=10000\",\"brand\":\"generic\",\"mid\":\"sdk\",\"imsi\":\"310260000000000\",\"channel\":\"1004n\",\"anony\":\"@anonymous:_000000000000000\"}}";*/
+				
+		
 		Log.i("GetProStr", edata_plain);
 		String edata = EncryptString(edata_plain);
 		return edata;
@@ -911,7 +965,7 @@ public class MainActivity extends Activity {
 			// body="apiv=32&edata=w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG9Q%2ByR%2FbI61hpKG0X1s5yqdnToemPDGvEFpJV3KPsvR8SzE38943YB006GVPmduvR9CgRfnguVF4itQHqVUcVOqIK87UhbEkjsTUdBW7vmD%2BSFup4DeXG%2FOm7RZRYEi4AFAAVa1lJ%2BqQ8Tz7coB7kuoAeL4W69BRZ4NUdSfiDgBdQMfUaOqGHlofKqPpyoJD1a5SPHs4WXJn9YrK0Pywh3uNikw4gXsvMy1NOM4UYvDIqzTLBAzMuPGldqCvmryyVPwmpNni4zkEOgQWmBBW8HVEyWtm4cU4kh%2BshoJgWHonQFZPYHadZcnYEIXeXPlLhQp4G93DjO6L7I%2FCns3hiobZxIb2fDDvcpSsyCF9Hr87tgih%2BFxGGVkUjZi7%2Bn8svuSWUqGUw0OON%2FzbbuNILgZAzTKdN030suEiO6JHJnJGJjTkS%2BC8BS7HYaNg3haE841w7qGBfOfQqDV3rgOwMXUr0YcbRf5YJSUagf8KV1AJ5hpIVroJ3MzhtZxsoIh5Uw458K5mdnVEPXyVNTieQrN7T7XKFJmrVoZGRwExMKvmYoeyNookAypw99K6u7RCCzZ91IOiy%2BvT6FGL8AW5CLs0cKB%2FR6mYgTjQuOyfS4DL%2Bi5gADJcR2O2VOMxxWU0IkNvVRcRIvPF18BRgNmeWJksmQFInROS0JbnnUxaVyB5bBQNGr1yz4gBGJMdANcRZ0HGu64fqLhnGLcdoTBjWI%2FRDEMsOoD9obj4A7JYM0Dkv3woCUzAGF%2BgnhfCjRxiPRtNiabYwPXYDrrpHxJUHA6&platform=android&encryType=1&crc=bd62df1aab2f2ec68e322b69bfae6850&gzipTapiv=32&edata=w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG9Q%2ByR%2FbI61hpKG0X1s5yqdnToemPDGvEFpJV3KPsvR8SzE38943YB006GVPmduvR9CgRfnguVF4itQHqVUcVOqIK87UhbEkjsTUdBW7vmD%2BSFup4DeXG%2FOm7RZRYEi4AFAAVa1lJ%2BqQ8Tz7coB7kuoAeL4W69BRZ4NUdSfiDgBdQMfUaOqGHlofKqPpyoJD1a5SPHs4WXJn9YrK0Pywh3uNikw4gXsvMy1NOM4UYvDIqzTLBAzMuPGldqCvmryyVPwmpNni4zkEOgQWmBBW8HVEyWtm4cU4kh%2BshoJgWHonQFZPYHadZcnYEIXeXPlLhQp4G93DjO6L7I%2FCns3hiobZxIb2fDDvcpSsyCF9Hr87tgih%2BFxGGVkUjZi7%2Bn8svuSWUqGUw0OON%2FzbbuNILgZAzTKdN030suEiO6JHJnJGJjTkS%2BC8BS7HYaNg3haE841w7qGBfOfQqDV3rgOwMXUr0YcbRf5YJSUagf8KV1AJ5hpIVroJ3MzhtZxsoIh5Uw458K5mdnVEPXyVNTieQrN7T7XKFJmrVoZGRwExMKvmYoeyNookAypw99K6u7RCCzZ91IOiy%2BvT6FGL8AW5CLs0cKB%2FR6mYgTjQuOyfS4DL%2Bi5gADJcR2O2VOMxxWU0IkNvVRcRIvPF18BRgNmeWJksmQFInROS0JbnnUxaVyB5bBQNGr1yz4gBGJMdANcRZ0HGu64fqLhnGLcdoTBjWI%2FRDEMsOoD9obj4A7JYM0Dkv3woCUzAGF%2BgnhfCjRxiPRtNiabYwPXYDrrpHxJUHA6&platform=android&encryType=1&crc=bd62df1aab2f2ec68e322b69bfae6850&gzipType=0&kid=1.8.0";
 			// String
 			// body="apiv=32&edata=72pICm%2BhnI1mwy%2BFV4fSflncIBJc1OXicDjl0tOmAzpyeiIAal6Ba4Xc2n0o14kUf%2FLpUhLrROAkKZI4b0udC1qZXBfVcTp%2BDy1T3Qe1bcK4%2FbZkDzL0tUOlPpvOteagMmzXNqXOYuB4Rvij8cFenqy7iuvzII5SPXJw5Ox%2B%2FTGy4ZI3RllwL8eqO95Y19WTA2LguzcEqMGHypafrVxKL8ENnYy0u7spyGGcbXNMeR%2FAQaAzFjl%2F0XpVJ4cmqgREPSulvi%2Fu4prHTNzYLpkCLHvwn4UXcqyPCh5R9vx2S%2FUO5TzTpTYIwdmaWXkn4hIe4AQbO%2Bfy61%2B3EL1EcF%2FuEWGRZxgZOqdzLLNy4%2BBZILd%2FB%2BpJww9NOppAWDRP6zu%2FgqZII6G9mKAGAK%2Fkdc%2BKLd%2BWM2A3DK6PRQo7x68zL8l%2B8vkLRWzimCQ6V9AfPKo%2BvIoLgkNnVLfvGsG7N2tg0GRX2mafI4tdGihTJYjP%2FHUcfcKQyoS3sjecVaIKd%2FQmqT9ZdzHoX754G7cEpvrCetY5lJZbI9btEzRP%2FPn0u5YufaFiAuxdK1%2BYtdUONkY7SgIYkGsjNVv%2FuJZZ0KUXqengqH8qcM%2Bj%2BvPWkFEEiBwrNayVqe7QAJCZTyM2RaLdZ2wY%2B8pEDUpXsC0BtIEZSP8%2BUPmysSFgqQuemFi%2BcYQm7eh1rMn2p2NVKwj%2FN53C7ZhZutG3ob%2BhM5swX9dxT%2B5DRPlgVyI%2FcvOzCKE1eESdqxHWgoAgBtP0wj2K2AVGHEOO56CUBN69UEN%2FB6e7qZveLcY161k9o6J%2FDfgw5YDoPaK4qAAwE66FuDt5HEFst90FSxP23lJMOCHdUHHo3dVUieZLZujFCd93jTumm46foert7QbKUik%2BYAw3xuygDh30ccMZ9kxCvHy%2FsD3H%2FM6FGLlYkuInxtHJoTxaibBOlL9xKPOS1TVweDF4QLE%2FB1GwAVvFBmGeXnCZQYtket6QPD8XmkwQV%2B5i4dYoYhiA5Y2X1hTSLgJmrPS74q7sDtysA5BPeIVl2Z3OCQWMQzrNqLpCx8r2MGqMRWKivofCdUpINtL8rFN5ByvTytXt9yCO1bmwy10UZmHjM4Kqlv0Wz51tujLCNFyYFo5wF7M%3D&platform=android&encryType=1&crc=1041402d55bb89d6e6762611370d1e8b&gzipType=0&kid=1.8.0";
-			String body = "apiv=32&edata=" 
+			String body = "apiv=45&edata="//"apiv=32&edata=" 
 					+ edata
 					//"w4xeRP9vuZa27RHQ7zvti5lnHJE5OlhAnAHnslIyTQPuTqgpd33ulI%2B19QetksAt5VNbO0F%2BEyDOAepRzYC%2FdgL76MZshJmRJqblCK7N%2F8noh0qVMuIpJXElRyKdERcNcMgw5f%2F37waeIbVfD7THWBYFWT50XeMyT7Mx8FKleG9Q%2ByR%2FbI61hpKG0X1s5yqdnToemPDGvEFpJV3KPsvR8SzE38943YB006GVPmduvR9CgRfnguVF4itQHqVUcVOqIK87UhbEkjsTUdBW7vmD%2BSFup4DeXG%2FOm7RZRYEi4AErhb0euyJ11uazSwFnKa1s2xPEQr0tbYixsqwRcNMlY9Iw4n88o1vY7w7YU1xjd3QrF9aMnLxp%2FXv4e5KkB6zLNikw4gXsvMy1NOM4UYvDIqzTLBAzMuPGldqCvmryyVPwmpNni4zkEOgQWmBBW8HVEyWtm4cU4kh%2BshoJgWHonQFZPYHadZcnYEIXeXPlLhQp4G93DjO6L7I%2FCns3hiobZxIb2fDDvcpSsyCF9Hr87tgih%2BFxGGVkUjZi7%2Bn8svskyp%2Faz%2FGPuoBfE5hCrnzxhlL1QR0pdjS2%2F9nm5Q4DWpjTkS%2BC8BS7HYaNg3haE841w7qGBfOfQqDV3rgOwMXUr0YcbRf5YJSUagf8KV1AJ2JKKXI%2BuNjQO2OQi5DhGc5zwGlwkILRbk9PFstNFnzRbm2tj56%2F73KPdPnuuj%2BBmIoeyNookAypw99K6u7RCCzZ91IOiy%2BvT6FGL8AW5CLs0cKB%2FR6mYgTjQuOyfS4DL%2Bi5gADJcR2O2VOMxxWU0IkNvVRcRIvPF18BRgNmeWJksmQFInROS0JbnnUxaVyB5bBQNGr1yz4gBGJMdANcRZ0HGu64fqLhnGLcdoTBjWI%2FRDEMsOoD9obj4A7JYM0Dkv3woCUzAGF%2BgnhfCjRxiPRtNiabYwPXYDrrpHxJUHA6" +
 					+ "&platform=android&encryType=1&crc=f96fe697fa806a5e2afacf9c7a106c28&gzipType=0&kid=1.8.0";
