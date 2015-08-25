@@ -978,56 +978,65 @@ public class MainActivity extends Activity {
 			int code = response.getStatusLine().getStatusCode();
 			Log.i("status code", Integer.toString(code));
 			if (code == 200) {
-				byte[] data;
-				byte[] convert_data;
-				byte[] dencry;
-				// String rev = EntityUtils.toString(response.getEntity());// 杩斿洖
-
 				HttpEntity entity = response.getEntity();
 				
-				// int length=(int) entity.getContentLength();
-				int length = 4096;
-				ByteArrayBuffer buffer = new ByteArrayBuffer(length);
-				InputStream is = entity.getContent();
-
-				byte[] tmp = new byte[4096];
-				while (true) {
-					int len = is.read(tmp);
-					if (len == -1)
-						break;
-					buffer.append(tmp, 0, len);
-				}
-				is.close();
-
-				data = buffer.toByteArray();
-
-				//瑙ｅ瘑鏃剁涓変釜鍙傛暟瑕佺湅鍙戦�鏁版嵁鍖呬腑鐨刱id鍊�		
-				dencry = "".getBytes();
-				String final_dec = "";
-				try{
-					dencry = SafeUtil.decryptRequestData(null, data, "1.8.0");
-					final_dec = new String(gzipdec(dencry));
-					Log.i("final_dec", final_dec);
-				}catch(Exception e)
+				int bNeedDecrypt = 0;
+				if(bNeedDecrypt == 1)
 				{
-					e.printStackTrace();
-					try
-					{
-						dencry = SafeUtil.decryptRequestData(null, data, "3.0.1");
+					byte[] data;
+					//byte[] convert_data;
+					byte[] dencry;
+					// String rev = EntityUtils.toString(response.getEntity());// 杩斿洖	
+					
+					// int length=(int) entity.getContentLength();
+					int length = 4096;
+					ByteArrayBuffer buffer = new ByteArrayBuffer(length);
+					InputStream is = entity.getContent();
+	
+					byte[] tmp = new byte[4096];
+					while (true) {
+						int len = is.read(tmp);
+						if (len == -1)
+							break;
+						buffer.append(tmp, 0, len);
+					}
+					is.close();
+	
+					data = buffer.toByteArray();
+	
+					//瑙ｅ瘑鏃剁涓変釜鍙傛暟瑕佺湅鍙戦�鏁版嵁鍖呬腑鐨刱id鍊�		
+					dencry = "".getBytes();
+					String final_dec = "";
+					try{
+						dencry = SafeUtil.decryptRequestData(null, data, "1.8.0");
 						final_dec = new String(gzipdec(dencry));
 						Log.i("final_dec", final_dec);
-					}catch(Exception e1)
+					}catch(Exception e)
 					{
-						e1.printStackTrace();
+						e.printStackTrace();
+						try
+						{
+							dencry = SafeUtil.decryptRequestData(null, data, "3.0.1");
+							final_dec = new String(gzipdec(dencry));
+							Log.i("final_dec", final_dec);
+						}catch(Exception e1)
+						{
+							e1.printStackTrace();
+						}
 					}
+					//Log.i("response", data);
+					//瑙ｅ瘑瀹屼箣鍚庤繕瑕佽В鍘嬬缉
+					
+					//writeData("final_dec");
+					//writeData(final_dec);
+					//Thread.sleep(100);
+					return final_dec;
+				}else
+				{
+					int length=(int) entity.getContentLength();
+					strResult = EntityUtils.toString(entity);
+					return strResult;
 				}
-				//Log.i("response", data);
-				//瑙ｅ瘑瀹屼箣鍚庤繕瑕佽В鍘嬬缉
-				
-				//writeData("final_dec");
-				//writeData(final_dec);
-				//Thread.sleep(100);
-				return final_dec;
 			}
 		} catch (ClientProtocolException e) {
 		} catch (IOException e) {
